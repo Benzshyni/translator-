@@ -180,105 +180,142 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 .form-actions{display:flex;gap:7px;margin-top:14px;}
 .card[dir="rtl"] .form-actions{flex-direction:row-reverse;}
 
-/* ── SCREEN BUILDER ── */
-.sb-layout{display:flex;gap:0;flex:1;min-height:0;height:calc(100vh - 120px);}
-.sb-left{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
-.sb-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;}
-.sb-panel-title{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.sb-screens-list{flex:1;overflow-y:auto;padding:8px;}
-.sb-screen-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .15s;margin-bottom:4px;}
-.sb-screen-item:hover{background:var(--surface2);border-color:var(--border);}
-.sb-screen-item.active{background:var(--gold-dim);border-color:var(--gold);}
-.sb-screen-thumb{width:32px;height:22px;border-radius:4px;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;}
-.sb-screen-name{font-size:.78rem;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sb-screen-item.active .sb-screen-name{color:var(--gold-light);}
-.sb-screen-del{font-size:.7rem;color:var(--text-dim);cursor:pointer;padding:2px 5px;border-radius:4px;transition:all .15s;flex-shrink:0;}
-.sb-screen-del:hover{color:var(--red);background:rgba(231,76,60,.1);}
-.sb-add-btn{margin:8px;background:var(--gold-dim);border:1px dashed rgba(201,168,76,.3);border-radius:8px;padding:9px;text-align:center;font-size:.73rem;color:var(--gold);cursor:pointer;transition:all .2s;}
-.sb-add-btn:hover{background:rgba(201,168,76,.18);border-color:var(--gold);}
+/* ══════════════════════════════
+   SCREEN BUILDER — UPLOAD & TRANSLATE
+   ══════════════════════════════ */
 
-/* Editor area */
-.sb-editor{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;}
-.sb-editor-topbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2);}
-.sb-screen-title-input{flex:1;background:transparent;border:none;outline:none;font-size:.85rem;font-weight:600;color:var(--text);font-family:'IBM Plex Sans',sans-serif;}
-.sb-editor-body{display:flex;flex:1;min-height:0;}
-.sb-canvas{flex:1;padding:16px;overflow-y:auto;min-height:280px;}
-.sb-toolbar{width:180px;border-left:1px solid var(--border);padding:12px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
-.sb-toolbar-title{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:2px;}
-.sb-block-btn{display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:.72rem;color:var(--text-muted);transition:all .15s;user-select:none;}
-.sb-block-btn:hover{color:var(--text);border-color:var(--gold);background:var(--gold-dim);}
-.sb-block-icon{font-size:.85rem;width:16px;text-align:center;}
+/* Layout */
+.sb-shell{display:flex;gap:16px;height:calc(100vh - 170px);min-height:500px;}
+.sb-sidebar{width:220px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.sb-sidebar-head{padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sb-sidebar-head span{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;}
+.sb-screen-count{font-size:.6rem;color:var(--text-dim);}
+.sb-list{flex:1;overflow-y:auto;padding:6px;}
+.sb-item{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .15s;margin-bottom:3px;position:relative;}
+.sb-item:hover{background:var(--surface2);border-color:var(--border);}
+.sb-item.active{background:var(--gold-dim);border-color:var(--gold);}
+.sb-item-thumb{width:34px;height:24px;border-radius:4px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;background:var(--surface3);display:flex;align-items:center;justify-content:center;}
+.sb-item-thumb img{width:100%;height:100%;object-fit:cover;}
+.sb-item-thumb .no-img{font-size:.7rem;color:var(--text-dim);}
+.sb-item-info{flex:1;min-width:0;}
+.sb-item-name{font-size:.75rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-item.active .sb-item-name{color:var(--gold-light);}
+.sb-item-type{font-size:.6rem;color:var(--text-dim);margin-top:1px;}
+.sb-item-badge{font-size:.55rem;padding:1px 5px;border-radius:3px;background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.2);flex-shrink:0;}
+.sb-item-del{position:absolute;top:50%;right:6px;transform:translateY(-50%);font-size:.65rem;color:var(--text-dim);padding:2px 5px;border-radius:4px;transition:all .15s;opacity:0;}
+.sb-item:hover .sb-item-del{opacity:1;}
+.sb-item-del:hover{color:var(--red);background:rgba(231,76,60,.12);}
 
-/* Canvas blocks */
-.sc-block{position:relative;margin-bottom:8px;border-radius:8px;border:1px solid transparent;transition:border-color .15s;cursor:pointer;}
-.sc-block:hover{border-color:var(--border2);}
-.sc-block.selected{border-color:var(--gold) !important;box-shadow:0 0 0 1px var(--gold-dim);}
-.sc-block .del-block{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:4px;background:rgba(231,76,60,.85);color:#fff;font-size:.6rem;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
-.sc-block:hover .del-block,.sc-block.selected .del-block{display:flex;}
-/* Block types */
-.sb-blk-heading{padding:10px 12px;}
-.sb-blk-heading h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text);outline:none;border:none;background:transparent;width:100%;font-weight:700;}
-.sb-blk-para{padding:10px 12px;}
-.sb-blk-para p{font-size:.8rem;color:var(--text-muted);line-height:1.65;outline:none;width:100%;}
-.sb-blk-btn-row{padding:10px 12px;display:flex;gap:8px;flex-wrap:wrap;}
-.sb-blk-label{padding:10px 12px;display:flex;flex-direction:column;gap:4px;}
-.sb-blk-label .lbl-txt{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;outline:none;}
-.sb-blk-label input{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:.78rem;color:var(--text);font-family:'IBM Plex Sans',sans-serif;outline:none;width:100%;}
-.sb-blk-nav{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:8px;}
-.sb-blk-nav .nav-logo{font-family:'Playfair Display',serif;font-size:.85rem;color:var(--gold-light);outline:none;}
-.sb-blk-nav .nav-items{display:flex;gap:12px;}
-.sb-blk-nav .nav-items span{font-size:.7rem;color:var(--text-muted);outline:none;cursor:pointer;}
-.sb-blk-divider{padding:6px 12px;display:flex;align-items:center;gap:8px;}
-.sb-blk-divider .div-lbl{font-size:.62rem;color:var(--text-dim);white-space:nowrap;outline:none;}
-.sb-blk-divider::before,.sb-blk-divider::after{content:'';flex:1;height:1px;background:var(--border);}
-.sb-blk-image{padding:10px 12px;}
-.sb-blk-image .img-ph{height:80px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--text-dim);}
-.sb-blk-list{padding:10px 12px;}
-.sb-blk-list ul{padding-left:16px;}
-.sb-blk-list li{font-size:.78rem;color:var(--text-muted);line-height:1.7;outline:none;}
-.sb-blk-badge{padding:10px 12px;display:flex;gap:6px;flex-wrap:wrap;}
-.sc-badge{background:var(--gold-dim);border:1px solid rgba(201,168,76,.25);color:var(--gold-light);border-radius:6px;padding:3px 10px;font-size:.7rem;outline:none;}
+/* Upload btn */
+.sb-upload-trigger{margin:8px;border-radius:8px;background:var(--gold-dim);border:1.5px dashed rgba(201,168,76,.35);padding:10px;text-align:center;cursor:pointer;transition:all .2s;font-size:.72rem;color:var(--gold);display:flex;flex-direction:column;align-items:center;gap:4px;}
+.sb-upload-trigger:hover{background:rgba(201,168,76,.18);border-color:var(--gold);}
+.sb-upload-trigger .upl-icon{font-size:1.2rem;}
+.sb-upload-trigger .upl-label{font-size:.7rem;font-weight:500;}
+.sb-upload-trigger .upl-hint{font-size:.6rem;color:var(--text-dim);}
 
-/* RTL block overrides */
-.sc-block[dir="rtl"] .sb-blk-heading h2,
-.sc-block[dir="rtl"] .sb-blk-para p,
-.sc-block[dir="rtl"] .sb-blk-label .lbl-txt,
-.sc-block[dir="rtl"] .sb-blk-list li,
-.sc-block[dir="rtl"] .sb-blk-nav .nav-logo,
-.sc-block[dir="rtl"] .sb-blk-nav .nav-items span,
-.sc-block[dir="rtl"] .sb-blk-divider .div-lbl,
-.sc-block[dir="rtl"] .sb-blk-badge .sc-badge{font-family:'Noto Naskh Arabic',serif;}
-.sc-block[dir="rtl"]{direction:rtl;text-align:right;}
-.sc-block[dir="rtl"] .sb-blk-nav{flex-direction:row-reverse;}
-.sc-block[dir="rtl"] .sb-blk-nav .nav-items{flex-direction:row-reverse;}
-.sc-block[dir="rtl"] .sb-blk-label input{direction:rtl;text-align:right;font-family:'Noto Naskh Arabic',sans-serif;}
-.sc-block[dir="rtl"] .sb-blk-btn-row{flex-direction:row-reverse;}
-.sc-block[dir="rtl"] .sb-blk-list ul{padding-left:0;padding-right:16px;}
-.sc-block[dir="rtl"] .del-block{right:auto;left:4px;}
+/* Main workspace */
+.sb-workspace{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;}
 
-/* Preview split */
-.sb-preview{display:flex;gap:12px;}
-.sb-preview-pane{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
-.sb-preview-pane-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);}
-.sb-pane-label{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;}
-.sb-pane-dir{font-size:.6rem;color:var(--text-dim);border:1px solid var(--border);border-radius:4px;padding:2px 7px;}
-.sb-preview-content{padding:14px;min-height:120px;}
+/* Drop Zone */
+.sb-dropzone{border:2px dashed var(--border2);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 24px;gap:12px;cursor:pointer;transition:all .25s;background:var(--surface);text-align:center;position:relative;}
+.sb-dropzone.dragover{border-color:var(--gold);background:var(--gold-dim);transform:scale(1.005);}
+.sb-dropzone .dz-icon{font-size:2.8rem;line-height:1;transition:transform .3s;}
+.sb-dropzone.dragover .dz-icon{transform:scale(1.15) translateY(-3px);}
+.sb-dropzone .dz-title{font-size:.95rem;font-weight:600;color:var(--text);}
+.sb-dropzone .dz-sub{font-size:.75rem;color:var(--text-muted);max-width:320px;line-height:1.6;}
+.sb-dropzone .dz-types{display:flex;gap:6px;margin-top:4px;}
+.sb-dropzone .dz-type{font-size:.62rem;padding:2px 9px;border-radius:4px;border:1px solid var(--border);color:var(--text-dim);}
+.sb-dropzone .dz-or{font-size:.7rem;color:var(--text-dim);}
+.sb-dropzone .dz-browse{background:var(--gold);color:#0c0b09;border:none;border-radius:7px;padding:7px 18px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .2s;}
+.sb-dropzone .dz-browse:hover{background:var(--gold-light);}
+input#file-input{display:none;}
 
-/* Translate bar */
-.sb-translate-bar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;}
-.sb-translate-info{flex:1;font-size:.75rem;color:var(--text-muted);}
-.sb-translate-info strong{color:var(--gold-light);display:block;font-size:.78rem;margin-bottom:2px;}
-.sb-t-status{font-size:.68rem;padding:3px 9px;border-radius:5px;border:1px solid var(--border);}
-.sb-t-status.idle{color:var(--text-dim);}
-.sb-t-status.running{color:var(--gold);border-color:var(--gold);animation:tpulse 1s infinite;}
-.sb-t-status.done{color:var(--green);border-color:var(--green);}
-@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* Comparison view */
+.sb-comparison{flex:1;display:flex;flex-direction:column;gap:10px;}
 
-/* Empty state */
-.sb-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:10px;color:var(--text-dim);text-align:center;}
-.sb-empty-icon{font-size:2rem;opacity:.4;}
-.sb-empty-title{font-size:.82rem;color:var(--text-muted);}
-.sb-empty-sub{font-size:.7rem;line-height:1.6;max-width:200px;}
+/* Toolbar above comparison */
+.sb-toolbar-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
+.sb-file-info{flex:1;display:flex;align-items:center;gap:10px;}
+.sb-file-icon{width:32px;height:32px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.sb-file-name{font-size:.8rem;font-weight:500;color:var(--text);}
+.sb-file-meta{font-size:.65rem;color:var(--text-dim);margin-top:1px;}
+.sb-progress-wrap{display:flex;align-items:center;gap:8px;}
+.sb-progress{width:120px;height:4px;background:var(--surface2);border-radius:999px;overflow:hidden;}
+.sb-progress-fill{height:100%;background:var(--gold);border-radius:999px;transition:width .4s ease;width:0%;}
+.sb-progress-label{font-size:.65rem;color:var(--text-muted);white-space:nowrap;}
+.translate-btn{background:var(--gold);color:#0c0b09;border:none;border-radius:7px;padding:7px 16px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.translate-btn:hover:not(:disabled){background:var(--gold-light);transform:translateY(-1px);}
+.translate-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.retranslate-btn{background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-size:.72rem;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .2s;}
+.retranslate-btn:hover{color:var(--text);border-color:var(--text-dim);}
+
+/* Side-by-side panes */
+.sb-panes{flex:1;display:flex;gap:12px;min-height:0;}
+.sb-pane{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column;overflow:hidden;}
+.sb-pane-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);flex-shrink:0;}
+.sb-pane-title{font-size:.68rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:6px;}
+.sb-pane-title .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.dot-en{background:var(--blue);}
+.dot-ar{background:var(--gold);}
+.sb-pane-badge{font-size:.58rem;padding:2px 7px;border-radius:4px;}
+.sb-pane-badge.ltr-badge{background:rgba(52,152,219,.1);color:var(--blue);border:1px solid rgba(52,152,219,.2);}
+.sb-pane-badge.rtl-badge{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,.2);}
+.sb-pane-body{flex:1;overflow:auto;padding:16px;position:relative;}
+
+/* Original image display */
+.orig-img-wrap{position:relative;width:100%;}
+.orig-img-wrap img{width:100%;border-radius:8px;display:block;}
+.txt-overlay{position:absolute;inset:0;pointer-events:none;}
+
+/* Text blocks overlay */
+.txt-chip{position:absolute;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);border-radius:4px;padding:1px 4px;font-size:.6rem;color:var(--gold);cursor:default;transition:background .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95%;}
+.txt-chip:hover{background:rgba(201,168,76,0.2);}
+
+/* Arabic rendered pane */
+.ar-render{direction:rtl;text-align:right;font-family:'Noto Naskh Arabic',serif;}
+.ar-render .ar-section{margin-bottom:14px;padding:10px 12px;background:var(--surface2);border-radius:9px;border:1px solid var(--border);}
+.ar-render .ar-label{font-size:.58rem;color:var(--gold);letter-spacing:0;text-transform:none;margin-bottom:4px;font-family:'Noto Naskh Arabic',sans-serif;display:block;}
+.ar-render .ar-text{font-size:.85rem;color:var(--text);line-height:1.7;}
+.ar-render .ar-text.heading{font-size:1.1rem;font-weight:700;font-family:'Noto Naskh Arabic',serif;}
+.ar-render .ar-text.small{font-size:.75rem;color:var(--text-muted);}
+.ar-render .ar-btn-row{display:flex;flex-direction:row-reverse;gap:7px;flex-wrap:wrap;}
+.ar-render .ar-btn{border:none;border-radius:7px;padding:7px 14px;font-size:.8rem;cursor:pointer;font-family:'Noto Naskh Arabic',sans-serif;}
+.ar-render .ar-btn.primary{background:var(--gold);color:#0c0b09;font-weight:600;}
+.ar-render .ar-btn.secondary{background:var(--surface3);color:var(--text-muted);border:1px solid var(--border);}
+.ar-render .ar-input-field{background:var(--surface3);border:1px solid var(--border2);border-radius:7px;padding:8px 12px;font-size:.82rem;color:var(--text);font-family:'Noto Naskh Arabic',sans-serif;direction:rtl;text-align:right;width:100%;}
+.ar-render .ar-nav{display:flex;flex-direction:row-reverse;align-items:center;justify-content:space-between;background:var(--surface3);border-radius:8px;padding:9px 14px;}
+.ar-render .ar-nav-brand{font-size:.9rem;font-weight:700;color:var(--gold-light);}
+.ar-render .ar-nav-links{display:flex;flex-direction:row-reverse;gap:14px;}
+.ar-render .ar-nav-link{font-size:.72rem;color:var(--text-muted);}
+.ar-render .ar-tag{display:inline-block;background:var(--gold-dim);border:1px solid rgba(201,168,76,.25);color:var(--gold-light);border-radius:5px;padding:2px 9px;font-size:.72rem;margin:2px;}
+.ar-render .ar-list{padding-right:18px;padding-left:0;}
+.ar-render .ar-list li{font-size:.82rem;color:var(--text-muted);line-height:1.8;}
+.ar-render .ar-img-ph{height:70px;background:var(--surface3);border:1px dashed var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--text-dim);font-family:'Noto Naskh Arabic',sans-serif;}
+.ar-render .ar-divider{display:flex;align-items:center;gap:10px;direction:rtl;}
+.ar-render .ar-divider::before,.ar-render .ar-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.ar-render .ar-divider span{font-size:.65rem;color:var(--text-dim);font-family:'Noto Naskh Arabic',sans-serif;white-space:nowrap;}
+
+/* Skeleton loading */
+.skel{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* States */
+.sb-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px 20px;text-align:center;height:100%;}
+.sb-state-icon{font-size:2.2rem;opacity:.35;}
+.sb-state-title{font-size:.82rem;color:var(--text-muted);}
+.sb-state-sub{font-size:.7rem;color:var(--text-dim);line-height:1.6;max-width:240px;}
+
+/* Spinner */
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(12,11,9,.3);border-top-color:#0c0b09;border-radius:50%;animation:spinning .6s linear infinite;}
+@keyframes spinning{to{transform:rotate(360deg)}}
+
+/* Extracted text panel */
+.extracted-panel{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:12px;}
+.extracted-panel-title{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;}
+.extracted-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:.72rem;}
+.extracted-item:last-child{border:none;}
+.ext-type{flex-shrink:0;width:56px;font-size:.58rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;padding-top:1px;}
+.ext-val{flex:1;color:var(--text-muted);line-height:1.5;word-break:break-word;}
 
 /* ── BUTTONS ── */
 .btn{border:none;cursor:pointer;border-radius:7px;font-size:.73rem;font-weight:500;padding:7px 13px;transition:all .2s;font-family:'IBM Plex Sans',sans-serif;line-height:1;}
@@ -543,95 +580,101 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 
     <!-- SCREEN BUILDER SECTION -->
     <div id="sec-screens" style="display:none">
-      <div class="section-label">Screen Builder — Add screens, translate to Arabic</div>
+      <div class="section-label">Screen Translator — Upload PDF or SVG, get Arabic RTL version</div>
 
-      <!-- Translate bar -->
-      <div class="sb-translate-bar">
-        <div class="sb-translate-info">
-          <strong>AI Translation</strong>
-          Paste or build your screen, then hit Translate — all text blocks are sent to Claude and replaced with Arabic with full RTL layout applied.
-        </div>
-        <span class="sb-t-status idle" id="t-status">Ready</span>
-        <button class="btn btn-gold" onclick="translateScreen()" id="translate-btn">✦ Translate Screen</button>
-      </div>
+      <input type="file" id="file-input" accept=".pdf,.svg,.png,.jpg,.jpeg,image/*,application/pdf" multiple onchange="handleFileSelect(event)">
 
-      <!-- Main layout -->
-      <div class="sb-layout">
+      <div class="sb-shell">
 
-        <!-- Left: screen list -->
-        <div class="sb-left">
-          <div class="sb-panel-title">
+        <!-- Left sidebar: screen list -->
+        <div class="sb-sidebar">
+          <div class="sb-sidebar-head">
             <span>Screens</span>
-            <span id="screen-count" style="color:var(--text-dim);font-size:.65rem">0 screens</span>
+            <span class="sb-screen-count" id="sb-count">0</span>
           </div>
-          <div class="sb-screens-list" id="screens-list">
-            <div class="sb-empty" id="screens-empty">
-              <div class="sb-empty-icon">🖥️</div>
-              <div class="sb-empty-title">No screens yet</div>
-              <div class="sb-empty-sub">Click below to add your first screen</div>
+          <div class="sb-list" id="sb-list">
+            <div class="sb-state" style="padding:24px 12px;">
+              <div class="sb-state-icon">🖥️</div>
+              <div class="sb-state-title" style="font-size:.75rem">No screens yet</div>
+              <div class="sb-state-sub">Upload a file to get started</div>
             </div>
           </div>
-          <div class="sb-add-btn" onclick="addScreen()">＋ Add New Screen</div>
+          <div class="sb-upload-trigger" onclick="document.getElementById('file-input').click()">
+            <div class="upl-icon">＋</div>
+            <div class="upl-label">Add Screen</div>
+            <div class="upl-hint">PDF · SVG · PNG · JPG</div>
+          </div>
         </div>
 
-        <!-- Right: editor + preview -->
-        <div class="sb-right" style="margin-left:14px">
+        <!-- Right: dropzone or comparison workspace -->
+        <div class="sb-workspace">
 
-          <!-- Editor -->
-          <div class="sb-editor" id="sb-editor">
-            <div class="sb-editor-topbar">
-              <input class="sb-screen-title-input" id="screen-title-input" placeholder="Screen name…" oninput="updateScreenName()" disabled>
-              <span style="font-size:.65rem;color:var(--text-dim)" id="block-count">— no screen selected</span>
+          <!-- DROP ZONE (shown when no screen selected) -->
+          <div id="sb-dropzone" class="sb-dropzone"
+            ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)"
+            onclick="document.getElementById('file-input').click()">
+            <div class="dz-icon">📂</div>
+            <div class="dz-title">Drop your screen file here</div>
+            <div class="dz-sub">Upload a PDF, SVG, or image of your UI screen — Claude will extract all text, translate it to Arabic, and show a side-by-side RTL comparison.</div>
+            <div class="dz-types">
+              <span class="dz-type">PDF</span>
+              <span class="dz-type">SVG</span>
+              <span class="dz-type">PNG</span>
+              <span class="dz-type">JPG</span>
             </div>
-            <div class="sb-editor-body">
-              <!-- Canvas -->
-              <div class="sb-canvas" id="sb-canvas">
-                <div class="sb-empty" id="canvas-empty">
-                  <div class="sb-empty-icon">✦</div>
-                  <div class="sb-empty-title">Select or create a screen</div>
-                  <div class="sb-empty-sub">Then add blocks from the toolbar on the right</div>
+            <div class="dz-or">— or —</div>
+            <button class="dz-browse" onclick="event.stopPropagation();document.getElementById('file-input').click()">Browse Files</button>
+          </div>
+
+          <!-- COMPARISON (shown when screen is active) -->
+          <div id="sb-comparison" class="sb-comparison" style="display:none">
+
+            <!-- Toolbar row -->
+            <div class="sb-toolbar-row">
+              <div class="sb-file-info">
+                <div class="sb-file-icon" id="tb-icon">📄</div>
+                <div>
+                  <div class="sb-file-name" id="tb-name">—</div>
+                  <div class="sb-file-meta" id="tb-meta">—</div>
                 </div>
               </div>
-              <!-- Toolbar -->
-              <div class="sb-toolbar" id="sb-toolbar">
-                <div class="sb-toolbar-title">Add Block</div>
-                <div class="sb-block-btn" onclick="addBlock('nav')"><span class="sb-block-icon">🧭</span>Navbar</div>
-                <div class="sb-block-btn" onclick="addBlock('heading')"><span class="sb-block-icon">Hh</span>Heading</div>
-                <div class="sb-block-btn" onclick="addBlock('para')"><span class="sb-block-icon">¶</span>Paragraph</div>
-                <div class="sb-block-btn" onclick="addBlock('label')"><span class="sb-block-icon">🏷</span>Input Field</div>
-                <div class="sb-block-btn" onclick="addBlock('btnrow')"><span class="sb-block-icon">⬛</span>Button Row</div>
-                <div class="sb-block-btn" onclick="addBlock('badge')"><span class="sb-block-icon">🔖</span>Badges</div>
-                <div class="sb-block-btn" onclick="addBlock('list')"><span class="sb-block-icon">☰</span>List</div>
-                <div class="sb-block-btn" onclick="addBlock('image')"><span class="sb-block-icon">🖼</span>Image Box</div>
-                <div class="sb-block-btn" onclick="addBlock('divider')"><span class="sb-block-icon">—</span>Divider</div>
+              <div class="sb-progress-wrap" id="tb-progress" style="display:none">
+                <div class="sb-progress"><div class="sb-progress-fill" id="progress-fill"></div></div>
+                <div class="sb-progress-label" id="progress-label">Extracting…</div>
               </div>
+              <button class="retranslate-btn" id="retranslate-btn" style="display:none" onclick="doTranslate()">↺ Re-translate</button>
+              <button class="translate-btn" id="translate-btn-main" onclick="doTranslate()" disabled>
+                <span>✦ Translate to Arabic</span>
+              </button>
             </div>
-          </div>
 
-          <!-- Side-by-side Preview -->
-          <div class="sb-preview" id="sb-preview">
-            <div class="sb-preview-pane">
-              <div class="sb-preview-pane-header">
-                <span class="sb-pane-label">Original (LTR)</span>
-                <span class="sb-pane-dir">← →</span>
+            <!-- Side-by-side panes -->
+            <div class="sb-panes">
+              <!-- Original pane -->
+              <div class="sb-pane">
+                <div class="sb-pane-header">
+                  <div class="sb-pane-title"><span class="dot dot-en"></span> Original <span class="sb-pane-badge ltr-badge">LTR ← →</span></div>
+                  <span style="font-size:.6rem;color:var(--text-dim)" id="orig-label">—</span>
+                </div>
+                <div class="sb-pane-body" id="pane-orig">
+                  <div class="sb-state"><div class="sb-state-icon">🖼</div><div class="sb-state-title">Original screen</div><div class="sb-state-sub">Will appear here after upload</div></div>
+                </div>
               </div>
-              <div class="sb-preview-content" id="preview-ltr">
-                <div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Build your screen above to preview it here</div>
+              <!-- Arabic pane -->
+              <div class="sb-pane">
+                <div class="sb-pane-header">
+                  <div class="sb-pane-title"><span class="dot dot-ar"></span> <span style="font-family:'Noto Naskh Arabic',serif">العربية</span> <span class="sb-pane-badge rtl-badge">RTL → ←</span></div>
+                  <span style="font-size:.6rem;color:var(--text-dim);font-family:'Noto Naskh Arabic',sans-serif" id="ar-label">—</span>
+                </div>
+                <div class="sb-pane-body" id="pane-ar">
+                  <div class="sb-state"><div class="sb-state-icon">✦</div><div class="sb-state-title">Arabic translation</div><div class="sb-state-sub">Click Translate to Arabic to generate the RTL version</div></div>
+                </div>
               </div>
             </div>
-            <div class="sb-preview-pane">
-              <div class="sb-preview-pane-header">
-                <span class="sb-pane-label" style="font-family:'Noto Naskh Arabic',serif">معاينة العربية (RTL)</span>
-                <span class="sb-pane-dir">→ ←</span>
-              </div>
-              <div class="sb-preview-content" id="preview-rtl">
-                <div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Translate to see Arabic preview</div>
-              </div>
-            </div>
-          </div>
 
-        </div>
-      </div>
+          </div><!-- /comparison -->
+        </div><!-- /workspace -->
+      </div><!-- /sb-shell -->
     </div>
 
     <!-- LIVE TRANSLATE SECTION -->
@@ -698,307 +741,331 @@ function showSec(name) {
 }
 
 // ══════════════════════════════════════════
-// ── SCREEN BUILDER ──
+// ── SCREEN BUILDER — UPLOAD & TRANSLATE ──
 // ══════════════════════════════════════════
 
-let screens = [];       // [{id, name, blocks:[{id,type,data}]}]
-let activeScreenId = null;
-let selectedBlockId = null;
-let blockSeq = 0;
+let sbScreens = [];      // [{id, name, type, fileData, imageUrl, extractedItems, arItems, translated}]
+let sbActiveId = null;
 
-const BLOCK_DEFAULTS = {
-  nav:     { logo:'MyApp', links:['Home','Products','About','Contact'], btn:'Sign Up' },
-  heading: { text:'Screen Title Goes Here' },
-  para:    { text:'Add your description or body copy here. This text will be translated into Arabic with the correct RTL layout applied automatically.' },
-  label:   { label:'Field Label', placeholder:'Enter value here…' },
-  btnrow:  { buttons:[{text:'Primary Action',type:'gold'},{text:'Cancel',type:'ghost'}] },
-  badge:   { items:['Design','Analytics','Verified','Active'] },
-  list:    { items:['First item in the list','Second item in the list','Third item in the list'] },
-  image:   { caption:'Image placeholder' },
-  divider: { label:'Section' },
-};
+// ── Drag & Drop ──
+function dzOver(e) { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+function dzLeave(e) { e.currentTarget.classList.remove('dragover'); }
+function dzDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('dragover');
+  const files = Array.from(e.dataTransfer.files);
+  processFiles(files);
+}
+function handleFileSelect(e) { processFiles(Array.from(e.target.files)); e.target.value=''; }
 
-function screenEmoji(name) {
-  const map = { home:'🏠', dashboard:'📊', profile:'👤', settings:'⚙️', login:'🔐', checkout:'🛒', about:'ℹ️', contact:'📬', product:'📦' };
-  const k = name.toLowerCase();
-  for (const [kw, em] of Object.entries(map)) if (k.includes(kw)) return em;
-  return '🖥️';
+function processFiles(files) {
+  const allowed = ['application/pdf','image/svg+xml','image/png','image/jpeg','image/jpg','image/webp'];
+  files.forEach(file => {
+    const ok = allowed.some(t => file.type === t) || file.name.endsWith('.svg') || file.name.endsWith('.pdf');
+    if (!ok) return;
+    const id = 'sb_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    const ext = file.name.split('.').pop().toUpperCase();
+    const entry = { id, name: file.name.replace(/\.[^.]+$/,''), type: ext, file, imageUrl: null, extractedItems: null, arItems: null, translated: false };
+    sbScreens.push(entry);
+    // Read as dataURL for preview
+    const reader = new FileReader();
+    reader.onload = ev => {
+      entry.fileData = ev.target.result;
+      if (file.type.startsWith('image/') || file.name.endsWith('.svg')) {
+        entry.imageUrl = ev.target.result;
+      }
+      renderSbList();
+      if (!sbActiveId) selectSbScreen(id);
+    };
+    reader.readAsDataURL(file);
+  });
+  renderSbList();
 }
 
-function addScreen() {
-  const id = 'scr_' + Date.now();
-  const name = 'Screen ' + (screens.length + 1);
-  screens.push({ id, name, blocks: [], arBlocks: null });
-  renderScreenList();
-  selectScreen(id);
-}
-
-function deleteScreen(id, e) {
-  e.stopPropagation();
-  screens = screens.filter(s => s.id !== id);
-  if (activeScreenId === id) {
-    activeScreenId = screens.length ? screens[screens.length-1].id : null;
-  }
-  renderScreenList();
-  if (activeScreenId) selectScreen(activeScreenId);
-  else clearCanvas();
-}
-
-function renderScreenList() {
-  const list = document.getElementById('screens-list');
-  const empty = document.getElementById('screens-empty');
-  const count = document.getElementById('screen-count');
-  count.textContent = screens.length + ' screen' + (screens.length!==1?'s':'');
-  if (!screens.length) { empty.style.display=''; list.innerHTML=''; list.appendChild(empty); return; }
-  empty.style.display = 'none';
-  // rebuild
+function renderSbList() {
+  const list = document.getElementById('sb-list');
+  const count = document.getElementById('sb-count');
+  count.textContent = sbScreens.length;
   list.innerHTML = '';
-  screens.forEach(sc => {
+  if (!sbScreens.length) {
+    list.innerHTML = `<div class="sb-state" style="padding:24px 12px"><div class="sb-state-icon">🖥️</div><div class="sb-state-title" style="font-size:.75rem">No screens yet</div><div class="sb-state-sub">Upload a file to get started</div></div>`;
+    return;
+  }
+  sbScreens.forEach(sc => {
     const el = document.createElement('div');
-    el.className = 'sb-screen-item' + (sc.id===activeScreenId?' active':'');
-    el.onclick = () => selectScreen(sc.id);
+    el.className = 'sb-item' + (sc.id===sbActiveId?' active':'');
+    el.onclick = () => selectSbScreen(sc.id);
+    const thumb = sc.imageUrl ? `<img src="${sc.imageUrl}" alt="">` : `<span class="no-img">${sc.type}</span>`;
     el.innerHTML = `
-      <div class="sb-screen-thumb">${screenEmoji(sc.name)}</div>
-      <div class="sb-screen-name">${sc.name}</div>
-      ${sc.arBlocks ? '<span style="font-size:.6rem;color:var(--green)">✓ AR</span>' : ''}
-      <span class="sb-screen-del" onclick="deleteScreen('${sc.id}',event)" title="Delete">✕</span>
+      <div class="sb-item-thumb">${thumb}</div>
+      <div class="sb-item-info">
+        <div class="sb-item-name" title="${sc.name}">${sc.name}</div>
+        <div class="sb-item-type">${sc.type} · ${sc.file ? Math.round(sc.file.size/1024)+'KB' : ''}</div>
+      </div>
+      ${sc.translated ? '<span class="sb-item-badge">✓ AR</span>' : ''}
+      <span class="sb-item-del" onclick="deleteSbScreen('${sc.id}',event)" title="Remove">✕</span>
     `;
     list.appendChild(el);
   });
 }
 
-function selectScreen(id) {
-  activeScreenId = id;
-  renderScreenList();
-  const sc = screens.find(s => s.id===id);
-  if (!sc) return;
-  document.getElementById('screen-title-input').value = sc.name;
-  document.getElementById('screen-title-input').disabled = false;
-  renderCanvas(sc);
-  renderPreviews(sc);
-}
-
-function clearCanvas() {
-  document.getElementById('screen-title-input').value = '';
-  document.getElementById('screen-title-input').disabled = true;
-  document.getElementById('block-count').textContent = '— no screen selected';
-  document.getElementById('sb-canvas').innerHTML = '';
-  const e = document.createElement('div'); e.className='sb-empty'; e.id='canvas-empty';
-  e.innerHTML = '<div class="sb-empty-icon">✦</div><div class="sb-empty-title">Select or create a screen</div><div class="sb-empty-sub">Then add blocks from the toolbar</div>';
-  document.getElementById('sb-canvas').appendChild(e);
-  document.getElementById('preview-ltr').innerHTML = '<div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Build your screen above</div>';
-  document.getElementById('preview-rtl').innerHTML = '<div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Translate to see Arabic</div>';
-}
-
-function updateScreenName() {
-  const sc = screens.find(s => s.id===activeScreenId);
-  if (!sc) return;
-  sc.name = document.getElementById('screen-title-input').value || 'Untitled';
-  renderScreenList();
-}
-
-// ── BLOCKS ──
-function addBlock(type) {
-  const sc = screens.find(s => s.id===activeScreenId);
-  if (!sc) return;
-  const block = { id: 'blk_'+(++blockSeq), type, data: JSON.parse(JSON.stringify(BLOCK_DEFAULTS[type])) };
-  sc.blocks.push(block);
-  sc.arBlocks = null; // invalidate translation
-  renderCanvas(sc);
-  renderPreviews(sc);
-}
-
-function deleteBlock(blockId) {
-  const sc = screens.find(s => s.id===activeScreenId);
-  if (!sc) return;
-  sc.blocks = sc.blocks.filter(b => b.id!==blockId);
-  sc.arBlocks = null;
-  selectedBlockId = null;
-  renderCanvas(sc);
-  renderPreviews(sc);
-}
-
-function renderCanvas(sc) {
-  const canvas = document.getElementById('sb-canvas');
-  const count = document.getElementById('block-count');
-  canvas.innerHTML = '';
-  count.textContent = sc.blocks.length + ' block' + (sc.blocks.length!==1?'s':'');
-  if (!sc.blocks.length) {
-    canvas.innerHTML = '<div class="sb-empty" style="padding:30px 20px"><div class="sb-empty-icon" style="opacity:.3">＋</div><div class="sb-empty-title">No blocks yet</div><div class="sb-empty-sub">Add blocks from the toolbar →</div></div>';
-    return;
+function deleteSbScreen(id, e) {
+  e.stopPropagation();
+  sbScreens = sbScreens.filter(s => s.id !== id);
+  if (sbActiveId === id) {
+    sbActiveId = sbScreens.length ? sbScreens[sbScreens.length-1].id : null;
+    if (sbActiveId) selectSbScreen(sbActiveId); else showDropzone();
   }
-  sc.blocks.forEach(blk => {
-    const el = buildBlockEl(blk, 'ltr', true);
-    el.onclick = (e) => { e.stopPropagation(); selectedBlockId=blk.id; canvas.querySelectorAll('.sc-block').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); };
-    canvas.appendChild(el);
-  });
+  renderSbList();
 }
 
-function buildBlockEl(blk, dir, editable) {
-  const wrap = document.createElement('div');
-  wrap.className = 'sc-block';
-  wrap.setAttribute('dir', dir);
-  const d = blk.data;
-  const ar = dir==='rtl';
-  const ff = ar ? "font-family:'Noto Naskh Arabic',serif;" : '';
-  const fs = ar ? 'font-size:1.05em;' : '';
-
-  if (editable) {
-    const del = document.createElement('div');
-    del.className = 'del-block'; del.textContent = '✕';
-    del.onclick = (e) => { e.stopPropagation(); deleteBlock(blk.id); };
-    wrap.appendChild(del);
-  }
-
-  let inner = '';
-  switch(blk.type) {
-    case 'nav':
-      inner = `<div class="sb-blk-nav">
-        <div class="nav-logo" style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${d.logo}</div>
-        <div class="nav-items">${d.links.map(l=>`<span style="${ff}" ${editable?'contenteditable="true"':''}>${l}</span>`).join('')}</div>
-        <button class="btn btn-gold" style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${d.btn}</button>
-      </div>`; break;
-    case 'heading':
-      inner = `<div class="sb-blk-heading"><h2 style="${ff}" ${editable?'contenteditable="true"':''}>${d.text}</h2></div>`; break;
-    case 'para':
-      inner = `<div class="sb-blk-para"><p style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${d.text}</p></div>`; break;
-    case 'label':
-      inner = `<div class="sb-blk-label">
-        <div class="lbl-txt" style="${ff}" ${editable?'contenteditable="true"':''}>${d.label}</div>
-        <input type="text" placeholder="${d.placeholder}" style="${ff}${fs}" ${editable?'':'disabled'}>
-      </div>`; break;
-    case 'btnrow':
-      inner = `<div class="sb-blk-btn-row">${d.buttons.map(b=>`<button class="btn btn-${b.type}" style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${b.text}</button>`).join('')}</div>`; break;
-    case 'badge':
-      inner = `<div class="sb-blk-badge">${d.items.map(i=>`<span class="sc-badge" style="${ff}" ${editable?'contenteditable="true"':''}>${i}</span>`).join('')}</div>`; break;
-    case 'list':
-      inner = `<div class="sb-blk-list"><ul>${d.items.map(i=>`<li style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${i}</li>`).join('')}</ul></div>`; break;
-    case 'image':
-      inner = `<div class="sb-blk-image"><div class="img-ph" style="${ff}">🖼 ${d.caption}</div></div>`; break;
-    case 'divider':
-      inner = `<div class="sb-blk-divider"><span class="div-lbl" style="${ff}" ${editable?'contenteditable="true"':''}>${d.label}</span></div>`; break;
-  }
-  wrap.innerHTML = (wrap.innerHTML || '') + inner;
-  return wrap;
+function showDropzone() {
+  document.getElementById('sb-dropzone').style.display = '';
+  document.getElementById('sb-comparison').style.display = 'none';
 }
 
-function renderPreviews(sc) {
-  const ltr = document.getElementById('preview-ltr');
-  const rtl = document.getElementById('preview-rtl');
-  ltr.innerHTML = '';
-  rtl.innerHTML = '';
-  if (!sc.blocks.length) {
-    ltr.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Add blocks to preview</div>';
-    rtl.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Translate to see Arabic</div>';
-    return;
+function selectSbScreen(id) {
+  sbActiveId = id;
+  renderSbList();
+  const sc = sbScreens.find(s => s.id===id);
+  if (!sc) { showDropzone(); return; }
+  document.getElementById('sb-dropzone').style.display = 'none';
+  document.getElementById('sb-comparison').style.display = '';
+
+  // Toolbar
+  const icons = { PDF:'📄', SVG:'🔷', PNG:'🖼', JPG:'📷', JPEG:'📷', WEBP:'🖼' };
+  document.getElementById('tb-icon').textContent = icons[sc.type] || '📄';
+  document.getElementById('tb-name').textContent = sc.name + '.' + sc.type.toLowerCase();
+  document.getElementById('tb-meta').textContent = sc.file ? Math.round(sc.file.size/1024)+'KB · '+sc.type : sc.type;
+  document.getElementById('translate-btn-main').disabled = false;
+  document.getElementById('retranslate-btn').style.display = sc.translated ? '' : 'none';
+  document.getElementById('orig-label').textContent = sc.type;
+  document.getElementById('ar-label').textContent = sc.translated ? 'مُترجم ✓' : '—';
+
+  // Render original pane
+  renderOrigPane(sc);
+  // Render arabic pane
+  renderArPane(sc);
+
+  // Auto-extract if not done yet
+  if (!sc.extractedItems && sc.fileData) {
+    extractText(sc);
   }
-  sc.blocks.forEach(blk => ltr.appendChild(buildBlockEl(blk,'ltr',false)));
-  if (sc.arBlocks && sc.arBlocks.length) {
-    sc.arBlocks.forEach(blk => rtl.appendChild(buildBlockEl(blk,'rtl',false)));
+}
+
+function setProgress(pct, label) {
+  document.getElementById('tb-progress').style.display = pct < 100 && pct > 0 ? '' : 'none';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = label;
+}
+
+// ── Render original pane ──
+function renderOrigPane(sc) {
+  const pane = document.getElementById('pane-orig');
+  if (sc.imageUrl) {
+    pane.innerHTML = `
+      <div class="orig-img-wrap" id="img-wrap">
+        <img src="${sc.imageUrl}" alt="${sc.name}" style="width:100%;border-radius:8px;display:block;">
+        <div class="txt-overlay" id="txt-overlay"></div>
+      </div>`;
+    if (sc.extractedItems) overlayChips(sc);
+  } else if (sc.type === 'PDF') {
+    pane.innerHTML = `
+      <div style="text-align:center;padding:24px;color:var(--text-muted);">
+        <div style="font-size:2.5rem;margin-bottom:10px">📄</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:6px">${sc.name}.pdf</div>
+        <div style="font-size:.72rem;line-height:1.6">PDF uploaded. Claude will read the content<br>and extract all text for translation.</div>
+        ${sc.extractedItems ? renderExtractedList(sc.extractedItems) : '<div style="margin-top:12px;font-size:.68rem;color:var(--text-dim)">⏳ Extracting text…</div>'}
+      </div>`;
   } else {
-    rtl.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);text-align:center;padding:30px 16px;line-height:1.6">
-      <div style="font-size:1.5rem;margin-bottom:8px">✦</div>
-      Click <strong style="color:var(--gold)">Translate Screen</strong><br>to generate Arabic RTL preview
-    </div>`;
+    pane.innerHTML = `<div class="sb-state"><div class="sb-state-icon">📂</div><div class="sb-state-title">${sc.name}</div><div class="sb-state-sub">Processing…</div></div>`;
   }
 }
 
-// ── TRANSLATE via Claude API ──
-async function translateScreen() {
-  const sc = screens.find(s => s.id===activeScreenId);
-  if (!sc || !sc.blocks.length) {
-    alert('Please select a screen with at least one block first.');
+function overlayChips(sc) {
+  const overlay = document.getElementById('txt-overlay');
+  if (!overlay || !sc.extractedItems) return;
+  overlay.innerHTML = '';
+  // Place chips approximately evenly spaced — we don't have real coordinates so we simulate vertical layout
+  sc.extractedItems.forEach((item, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'txt-chip';
+    chip.textContent = item.text;
+    chip.title = item.type + ': ' + item.text;
+    // Distribute chips across the image height roughly
+    const topPct = 5 + (i / Math.max(sc.extractedItems.length,1)) * 85;
+    chip.style.cssText = `top:${topPct}%;left:4%;max-width:90%;`;
+    overlay.appendChild(chip);
+  });
+}
+
+function renderExtractedList(items) {
+  if (!items || !items.length) return '';
+  return `<div class="extracted-panel" style="margin-top:14px;text-align:left;">
+    <div class="extracted-panel-title">Extracted Text (${items.length} items)</div>
+    ${items.map(it=>`<div class="extracted-item"><span class="ext-type">${it.type}</span><span class="ext-val">${it.text}</span></div>`).join('')}
+  </div>`;
+}
+
+// ── Render Arabic pane ──
+function renderArPane(sc) {
+  const pane = document.getElementById('pane-ar');
+  if (!sc.translated || !sc.arItems) {
+    pane.innerHTML = `<div class="sb-state">
+      <div class="sb-state-icon" style="font-size:1.8rem">✦</div>
+      <div class="sb-state-title">Arabic translation</div>
+      <div class="sb-state-sub">Click <strong style="color:var(--gold)">Translate to Arabic</strong><br>to generate the RTL version</div>
+    </div>`;
     return;
   }
-
-  const btn = document.getElementById('translate-btn');
-  const status = document.getElementById('t-status');
-  btn.disabled = true;
-  btn.textContent = '⏳ Translating…';
-  status.className = 'sb-t-status running';
-  status.textContent = 'Translating…';
-
-  // Build a clean text map to send to Claude
-  const textMap = {};
-  sc.blocks.forEach(blk => {
-    const d = blk.data;
-    const entry = {};
-    switch(blk.type) {
-      case 'nav':     entry.logo=d.logo; entry.links=d.links; entry.btn=d.btn; break;
-      case 'heading': entry.text=d.text; break;
-      case 'para':    entry.text=d.text; break;
-      case 'label':   entry.label=d.label; entry.placeholder=d.placeholder; break;
-      case 'btnrow':  entry.buttons=d.buttons.map(b=>b.text); break;
-      case 'badge':   entry.items=d.items; break;
-      case 'list':    entry.items=d.items; break;
-      case 'image':   entry.caption=d.caption; break;
-      case 'divider': entry.label=d.label; break;
+  // Render Arabic content
+  const ar = document.createElement('div');
+  ar.className = 'ar-render';
+  sc.arItems.forEach(item => {
+    const sec = document.createElement('div');
+    sec.className = 'ar-section';
+    const lbl = document.createElement('span');
+    lbl.className = 'ar-label';
+    lbl.textContent = typeLabel(item.type);
+    sec.appendChild(lbl);
+    switch(item.type) {
+      case 'heading': { const t=document.createElement('div'); t.className='ar-text heading'; t.textContent=item.text; sec.appendChild(t); break; }
+      case 'subheading': { const t=document.createElement('div'); t.className='ar-text'; t.textContent=item.text; sec.appendChild(t); break; }
+      case 'body': { const t=document.createElement('div'); t.className='ar-text small'; t.textContent=item.text; sec.appendChild(t); break; }
+      case 'button': { const r=document.createElement('div'); r.className='ar-btn-row'; const b=document.createElement('button'); b.className='ar-btn primary'; b.textContent=item.text; r.appendChild(b); sec.appendChild(r); break; }
+      case 'link': { const r=document.createElement('div'); r.className='ar-btn-row'; const b=document.createElement('button'); b.className='ar-btn secondary'; b.textContent=item.text; r.appendChild(b); sec.appendChild(r); break; }
+      case 'label': { const t=document.createElement('div'); t.className='ar-text small'; t.textContent=item.text; sec.appendChild(t); const inp=document.createElement('input'); inp.className='ar-input-field'; inp.placeholder=item.text+'…'; inp.disabled=true; inp.style.marginTop='5px'; sec.appendChild(inp); break; }
+      case 'nav': { const n=document.createElement('div'); n.className='ar-nav'; n.innerHTML=`<div class="ar-nav-brand">${item.text}</div><div class="ar-nav-links"><span class="ar-nav-link">الرئيسية</span><span class="ar-nav-link">المنتجات</span><span class="ar-nav-link">تواصل</span></div>`; sec.appendChild(n); break; }
+      case 'tag': { const t=document.createElement('span'); t.className='ar-tag'; t.textContent=item.text; sec.appendChild(t); break; }
+      case 'list': { const ul=document.createElement('ul'); ul.className='ar-list'; item.text.split('\n').forEach(li=>{const e=document.createElement('li'); e.textContent=li; ul.appendChild(e);}); sec.appendChild(ul); break; }
+      case 'image': { const ph=document.createElement('div'); ph.className='ar-img-ph'; ph.textContent='🖼 '+item.text; sec.appendChild(ph); break; }
+      default: { const t=document.createElement('div'); t.className='ar-text'; t.textContent=item.text; sec.appendChild(t); }
     }
-    textMap[blk.id] = entry;
+    ar.appendChild(sec);
   });
+  pane.innerHTML = '';
+  pane.appendChild(ar);
+}
 
-  const prompt = `You are a professional Arabic translator and UI localization expert. Translate all English UI text strings into natural, fluent Arabic suitable for a professional app interface.
+function typeLabel(t) {
+  const m={heading:'عنوان رئيسي',subheading:'عنوان فرعي',body:'نص',button:'زر',link:'رابط',label:'حقل',nav:'شريط تنقل',tag:'تصنيف',list:'قائمة',image:'صورة'};
+  return m[t]||t;
+}
 
-Return ONLY a valid JSON object with NO extra text, markdown, or backticks. The structure must exactly mirror the input, with every string value translated to Arabic.
+// ── Extract text via Claude (send image/PDF as base64) ──
+async function extractText(sc) {
+  setProgress(20, 'Extracting text…');
+  const btn = document.getElementById('translate-btn-main');
+  btn.disabled = true;
 
-Input JSON:
-${JSON.stringify(textMap, null, 2)}
+  try {
+    const isImg = sc.type !== 'PDF';
+    const mediaType = sc.file.type || (sc.type==='SVG'?'image/svg+xml':'image/png');
+    const b64 = sc.fileData.split(',')[1];
+
+    const msgContent = [
+      {
+        type: isImg ? 'image' : 'document',
+        source: { type: 'base64', media_type: mediaType, data: b64 }
+      },
+      {
+        type: 'text',
+        text: `Analyze this UI screen design and extract ALL visible text elements. Classify each piece of text by its UI role.
+
+Return ONLY a valid JSON array — no markdown, no explanation, nothing else. Each element:
+{"type": "heading|subheading|body|button|link|label|nav|tag|list|image", "text": "exact text"}
 
 Rules:
-- Translate every string value to Arabic
-- Keep JSON keys identical
-- For arrays, translate each array element
-- Keep brand names (like "MyApp", "Lumina") as-is unless they have a meaning
-- Use formal Modern Standard Arabic (فصحى) appropriate for UI
-- Return ONLY the JSON object, nothing else`;
+- type "heading": main titles, page headers
+- type "subheading": section titles, card titles
+- type "body": paragraphs, descriptions, captions
+- type "button": clickable buttons (Submit, Sign In, etc)
+- type "link": nav links, text links
+- type "label": form field labels
+- type "nav": navbar brand/logo name
+- type "tag": badges, tags, chips, status labels
+- type "list": bullet/numbered list items (join with \\n)
+- type "image": image alt text or placeholder text
+Extract every text element. Return ONLY the JSON array.`
+      }
+    ];
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1500, messages:[{role:'user',content:msgContent}] })
+    });
+    const data = await resp.json();
+    const raw = (data.content?.find(c=>c.type==='text')?.text||'').replace(/```json|```/gi,'').trim();
+    sc.extractedItems = JSON.parse(raw);
+    setProgress(100,'Extraction complete');
+    btn.disabled = false;
+    renderOrigPane(sc);
+    if (sc.imageUrl) setTimeout(()=>overlayChips(sc),50);
+  } catch(err) {
+    console.error('Extract error:',err);
+    setProgress(0,'');
+    // Fallback: set placeholder items
+    sc.extractedItems = [{type:'body',text:'Could not extract text automatically. Click Translate to try anyway.'}];
+    btn.disabled = false;
+    renderOrigPane(sc);
+  }
+}
+
+// ── Translate extracted items ──
+async function doTranslate() {
+  const sc = sbScreens.find(s=>s.id===sbActiveId);
+  if (!sc) return;
+  const btn = document.getElementById('translate-btn-main');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Translating…';
+  setProgress(30,'Translating to Arabic…');
+  document.getElementById('ar-label').textContent = 'جار الترجمة…';
+
+  // If no extracted items yet, extract first
+  if (!sc.extractedItems) {
+    await extractText(sc);
+    if (!sc.extractedItems) { btn.disabled=false; btn.innerHTML='<span>✦ Translate to Arabic</span>'; return; }
+  }
+
+  const items = sc.extractedItems;
+  const prompt = `You are a professional Arabic UI translator. Translate all text values to natural, fluent Arabic for a professional app.
+
+Input JSON array:
+${JSON.stringify(items)}
+
+Rules:
+- Return ONLY a valid JSON array, same structure, same "type" values
+- Translate ONLY the "text" field values to Arabic
+- Use formal Modern Standard Arabic (فصحى)
+- Keep brand names / product names / proper nouns as-is
+- For type "list", keep \\n separators between items
+- Return ONLY the JSON array, no markdown, no explanation`;
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, messages:[{role:'user',content:prompt}] })
     });
     const data = await resp.json();
-    const raw = data.content?.find(c=>c.type==='text')?.text || '';
-    // Strip any accidental fences
-    const clean = raw.replace(/```json|```/gi,'').trim();
-    const arMap = JSON.parse(clean);
-
-    // Build arBlocks from translation
-    sc.arBlocks = sc.blocks.map(blk => {
-      const ar = arMap[blk.id] || {};
-      const newData = JSON.parse(JSON.stringify(blk.data));
-      switch(blk.type) {
-        case 'nav':     newData.logo=ar.logo||newData.logo; newData.links=ar.links||newData.links; newData.btn=ar.btn||newData.btn; break;
-        case 'heading': newData.text=ar.text||newData.text; break;
-        case 'para':    newData.text=ar.text||newData.text; break;
-        case 'label':   newData.label=ar.label||newData.label; newData.placeholder=ar.placeholder||newData.placeholder; break;
-        case 'btnrow':  if(ar.buttons) newData.buttons=newData.buttons.map((b,i)=>({...b,text:ar.buttons[i]||b.text})); break;
-        case 'badge':   newData.items=ar.items||newData.items; break;
-        case 'list':    newData.items=ar.items||newData.items; break;
-        case 'image':   newData.caption=ar.caption||newData.caption; break;
-        case 'divider': newData.label=ar.label||newData.label; break;
-      }
-      return { ...blk, data: newData };
-    });
-
-    renderPreviews(sc);
-    renderScreenList(); // show ✓ AR badge
-    status.className = 'sb-t-status done';
-    status.textContent = '✓ Translated';
-    btn.textContent = '✦ Re-translate';
+    const raw = (data.content?.find(c=>c.type==='text')?.text||'').replace(/```json|```/gi,'').trim();
+    sc.arItems = JSON.parse(raw);
+    sc.translated = true;
+    setProgress(100,'Translation complete');
+    document.getElementById('ar-label').textContent = 'مُترجم ✓';
+    document.getElementById('retranslate-btn').style.display = '';
+    btn.innerHTML = '<span>✦ Translate to Arabic</span>';
+    renderSbList();
+    renderArPane(sc);
   } catch(err) {
-    status.className = 'sb-t-status idle';
-    status.textContent = 'Error — retry';
-    btn.textContent = '✦ Translate Screen';
-    console.error(err);
-    alert('Translation failed. Make sure you are using this tool from claude.ai where the API is available.');
+    console.error('Translate error:',err);
+    setProgress(0,'');
+    btn.innerHTML = '<span>✦ Translate to Arabic</span>';
+    alert('Translation failed. Make sure you are running this from claude.ai where the API is available.');
   }
   btn.disabled = false;
+  setTimeout(()=>setProgress(0,''),2000);
 }
 // ──────────────────────────────────────────
 function globalToggle() {
