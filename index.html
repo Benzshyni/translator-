@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RTL Studio — Arabic Layout Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0b09;--surface:#161512;--surface2:#1e1d19;--surface3:#252420;
+  --border:#2a2925;--border2:#333028;
+  --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,0.12);
+  --text:#f0ece2;--text-muted:#8a8570;--text-dim:#4a4838;
+  --green:#2ecc71;--red:#e74c3c;--blue:#3498db;
+  --r:14px;
+}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;gap:12px;}
+.logo{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold-light);white-space:nowrap;}
+.logo span{color:var(--text-muted);font-family:'IBM Plex Sans',sans-serif;font-size:.7rem;margin-left:8px;font-weight:300;}
+.toggle-pill{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:5px 14px;cursor:pointer;transition:border-color .2s;flex-shrink:0;}
+.toggle-pill:hover{border-color:var(--gold);}
+.toggle-pill .lbl{font-size:.72rem;color:var(--text-muted);}
+.track{width:40px;height:22px;background:var(--surface3);border:1px solid var(--border2);border-radius:999px;position:relative;transition:background .3s;}
+.track.on{background:var(--gold);}
+.thumb{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 2px 4px rgba(0,0,0,.4);}
+.track.on .thumb{transform:translateX(18px);}
+
+/* ── LAYOUT ── */
+.shell{display:flex;flex:1;overflow:hidden;min-height:0;}
+.sidebar{width:200px;border-right:1px solid var(--border);background:var(--surface);padding:16px 0;flex-shrink:0;overflow-y:auto;}
+.sidebar-section{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;padding:8px 18px 4px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;font-size:.78rem;color:var(--text-muted);border-left:2px solid transparent;transition:all .15s;user-select:none;}
+.nav-item:hover{color:var(--text);background:var(--surface2);}
+.nav-item.active{color:var(--gold-light);border-left-color:var(--gold);background:var(--gold-dim);}
+.nav-icon{font-size:.95rem;width:18px;text-align:center;}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:22px;}
+
+/* ── SECTION LABEL ── */
+.section-label{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── CARDS GRID ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
+
+/* ── BASE CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow .25s;}
+.card:hover{box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.card[dir="rtl"]{direction:rtl;text-align:right;}
+.card[dir="ltr"]{direction:ltr;text-align:left;}
+
+/* ── PROFILE CARD ── */
+.profile-banner{height:72px;background:linear-gradient(135deg,#1a1710 0%,#2d2a1e 50%,#1a1710 100%);position:relative;overflow:hidden;}
+.profile-banner::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(201,168,76,.03) 0px,rgba(201,168,76,.03) 1px,transparent 1px,transparent 14px);}
+.profile-body{padding:0 18px 18px;}
+.profile-av-wrap{margin-top:-26px;margin-bottom:10px;}
+.card[dir="rtl"] .profile-av-wrap{display:flex;justify-content:flex-end;}
+.profile-av{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#6b4f10);display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:3px solid var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.45);}
+.profile-name{font-size:.95rem;font-weight:600;color:var(--text);}
+.card[dir="rtl"] .profile-name{font-family:'Noto Naskh Arabic',serif;}
+.profile-role{font-size:.68rem;color:var(--gold);margin-top:2px;text-transform:uppercase;letter-spacing:.06em;}
+.card[dir="rtl"] .profile-role{font-family:'Noto Naskh Arabic',sans-serif;text-transform:none;letter-spacing:0;font-size:.76rem;}
+.profile-bio{font-size:.72rem;color:var(--text-muted);margin-top:8px;line-height:1.6;}
+.card[dir="rtl"] .profile-bio{font-family:'Noto Naskh Arabic',sans-serif;font-size:.8rem;}
+.profile-stats{display:flex;margin-top:14px;border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+.card[dir="rtl"] .profile-stats{flex-direction:row-reverse;}
+.pstat{flex:1;padding:9px;text-align:center;border-right:1px solid var(--border);}
+.card[dir="rtl"] .pstat{border-right:none;border-left:1px solid var(--border);}
+.pstat:last-child{border:none;}
+.pstat-val{font-size:.9rem;font-weight:600;color:var(--text);}
+.pstat-lbl{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+.card[dir="rtl"] .pstat-lbl{font-family:'Noto Naskh Arabic',sans-serif;text-transform:none;letter-spacing:0;font-size:.68rem;}
+.profile-actions{display:flex;gap:7px;margin-top:14px;}
+.card[dir="rtl"] .profile-actions{flex-direction:row-reverse;}
+
+/* ── PRODUCT CARD ── */
+.product-img{height:110px;background:linear-gradient(135deg,#1c1a14,#2a2820);display:flex;align-items:center;justify-content:center;font-size:2.8rem;border-bottom:1px solid var(--border);}
+.product-body{padding:14px 16px;}
+.product-cat{font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+.card[dir="rtl"] .product-cat{font-family:'Noto Naskh Arabic',sans-serif;text-transform:none;letter-spacing:0;font-size:.7rem;}
+.product-name{font-size:.9rem;font-weight:600;color:var(--text);}
+.card[dir="rtl"] .product-name{font-family:'Noto Naskh Arabic',serif;}
+.product-desc{font-size:.7rem;color:var(--text-muted);margin-top:5px;line-height:1.55;}
+.card[dir="rtl"] .product-desc{font-family:'Noto Naskh Arabic',sans-serif;font-size:.76rem;}
+.product-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
+.card[dir="rtl"] .product-footer{flex-direction:row-reverse;}
+.product-price{font-size:1rem;font-weight:700;color:var(--gold-light);}
+.product-price sub{font-size:.62rem;color:var(--text-dim);font-weight:400;margin-left:3px;}
+.card[dir="rtl"] .product-price sub{margin-left:0;margin-right:3px;}
+.stars{color:var(--gold);font-size:.7rem;}
+.product-actions{display:flex;gap:7px;margin-top:11px;}
+.card[dir="rtl"] .product-actions{flex-direction:row-reverse;}
+
+/* ── DASHBOARD CARD ── */
+.dash-header{display:flex;align-items:center;justify-content:space-between;padding:15px 16px 0;}
+.card[dir="rtl"] .dash-header{flex-direction:row-reverse;}
+.dash-title{font-size:.8rem;font-weight:600;color:var(--text);}
+.card[dir="rtl"] .dash-title{font-family:'Noto Naskh Arabic',serif;}
+.dash-period{font-size:.63rem;color:var(--text-dim);background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 8px;}
+.dash-body{padding:14px 16px;}
+.kpi-row{display:flex;gap:9px;margin-bottom:12px;}
+.card[dir="rtl"] .kpi-row{flex-direction:row-reverse;}
+.kpi{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;}
+.kpi-label{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;}
+.card[dir="rtl"] .kpi-label{font-family:'Noto Naskh Arabic',sans-serif;text-transform:none;letter-spacing:0;font-size:.68rem;}
+.kpi-value{font-size:1rem;font-weight:700;color:var(--text);margin-top:2px;}
+.kpi-delta{font-size:.62rem;margin-top:2px;}
+.kpi-delta.up{color:var(--green);}
+.kpi-delta.dn{color:var(--red);}
+.mini-bars{display:flex;align-items:flex-end;gap:4px;height:44px;}
+.card[dir="rtl"] .mini-bars{flex-direction:row-reverse;}
+.bar{flex:1;background:var(--gold);border-radius:3px 3px 0 0;opacity:.55;transition:opacity .2s;}
+.bar:hover{opacity:1;}
+.bar.hi{opacity:1;background:var(--gold-light);}
+.bar-labels{display:flex;gap:4px;margin-top:4px;}
+.card[dir="rtl"] .bar-labels{flex-direction:row-reverse;}
+.bar-lbl{flex:1;text-align:center;font-size:.54rem;color:var(--text-dim);}
+
+/* ── NOTIFICATION CARD ── */
+.notif-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;}
+.card[dir="rtl"] .notif-hdr{flex-direction:row-reverse;}
+.notif-hdr-title{font-size:.78rem;font-weight:600;color:var(--text);}
+.card[dir="rtl"] .notif-hdr-title{font-family:'Noto Naskh Arabic',sans-serif;}
+.notif-clear{font-size:.65rem;color:var(--gold);cursor:pointer;}
+.card[dir="rtl"] .notif-clear{font-family:'Noto Naskh Arabic',sans-serif;}
+.notif-list{display:flex;flex-direction:column;margin-top:8px;}
+.notif-item{display:flex;align-items:flex-start;gap:11px;padding:12px 18px;border-bottom:1px solid var(--border);transition:background .15s;}
+.card[dir="rtl"] .notif-item{flex-direction:row-reverse;}
+.notif-item:last-child{border:none;}
+.notif-item:hover{background:var(--surface2);}
+.ndot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.ndot.blue{background:var(--blue);}
+.ndot.green{background:var(--green);}
+.ndot.gold{background:var(--gold);}
+.ndot.grey{background:var(--text-dim);}
+.notif-cnt{flex:1;min-width:0;}
+.notif-title{font-size:.8rem;color:var(--text);font-weight:500;}
+.card[dir="rtl"] .notif-title{font-family:'Noto Naskh Arabic',serif;}
+.notif-desc{font-size:.7rem;color:var(--text-muted);margin-top:2px;line-height:1.5;}
+.card[dir="rtl"] .notif-desc{font-family:'Noto Naskh Arabic',sans-serif;font-size:.76rem;}
+.notif-time{font-size:.63rem;color:var(--text-dim);white-space:nowrap;padding-top:2px;}
+
+/* ── NAVBAR CARD ── */
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);}
+.card[dir="rtl"] .nav-bar{flex-direction:row-reverse;}
+.nav-brand{font-family:'Playfair Display',serif;font-size:.9rem;color:var(--gold-light);}
+.card[dir="rtl"] .nav-brand{font-family:'Noto Naskh Arabic',serif;}
+.nav-links{display:flex;gap:16px;}
+.card[dir="rtl"] .nav-links{flex-direction:row-reverse;}
+.nav-link{font-size:.7rem;color:var(--text-muted);cursor:pointer;}
+.nav-link.active-link{color:var(--gold-light);}
+.card[dir="rtl"] .nav-link{font-family:'Noto Naskh Arabic',sans-serif;font-size:.78rem;}
+.hero{padding:20px 18px;}
+.hero-eyebrow{font-size:.62rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;}
+.card[dir="rtl"] .hero-eyebrow{font-family:'Noto Naskh Arabic',sans-serif;text-transform:none;letter-spacing:0;}
+.hero-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text);line-height:1.3;margin-bottom:7px;}
+.card[dir="rtl"] .hero-title{font-family:'Noto Naskh Arabic',serif;}
+.hero-body{font-size:.72rem;color:var(--text-muted);line-height:1.6;margin-bottom:14px;}
+.card[dir="rtl"] .hero-body{font-family:'Noto Naskh Arabic',sans-serif;font-size:.8rem;}
+.hero-actions{display:flex;gap:7px;}
+.card[dir="rtl"] .hero-actions{flex-direction:row-reverse;}
+
+/* ── FORM CARD ── */
+.form-body{padding:18px;}
+.form-title{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:3px;}
+.card[dir="rtl"] .form-title{font-family:'Noto Naskh Arabic',serif;}
+.form-sub{font-size:.7rem;color:var(--text-muted);margin-bottom:14px;}
+.card[dir="rtl"] .form-sub{font-family:'Noto Naskh Arabic',sans-serif;font-size:.78rem;}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.field label{font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;}
+.card[dir="rtl"] .field label{font-family:'Noto Naskh Arabic',sans-serif;text-transform:none;letter-spacing:0;font-size:.72rem;}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:8px 11px;font-size:.78rem;color:var(--text);font-family:'IBM Plex Sans',sans-serif;outline:none;width:100%;}
+.field input:focus,.field select:focus{border-color:var(--gold);}
+.card[dir="rtl"] .field input,.card[dir="rtl"] .field select{text-align:right;font-family:'Noto Naskh Arabic',sans-serif;direction:rtl;}
+.form-actions{display:flex;gap:7px;margin-top:14px;}
+.card[dir="rtl"] .form-actions{flex-direction:row-reverse;}
+
+/* ── SCREEN BUILDER ── */
+.sb-layout{display:flex;gap:0;flex:1;min-height:0;height:calc(100vh - 120px);}
+.sb-left{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.sb-right{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;}
+.sb-panel-title{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sb-screens-list{flex:1;overflow-y:auto;padding:8px;}
+.sb-screen-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .15s;margin-bottom:4px;}
+.sb-screen-item:hover{background:var(--surface2);border-color:var(--border);}
+.sb-screen-item.active{background:var(--gold-dim);border-color:var(--gold);}
+.sb-screen-thumb{width:32px;height:22px;border-radius:4px;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;}
+.sb-screen-name{font-size:.78rem;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-screen-item.active .sb-screen-name{color:var(--gold-light);}
+.sb-screen-del{font-size:.7rem;color:var(--text-dim);cursor:pointer;padding:2px 5px;border-radius:4px;transition:all .15s;flex-shrink:0;}
+.sb-screen-del:hover{color:var(--red);background:rgba(231,76,60,.1);}
+.sb-add-btn{margin:8px;background:var(--gold-dim);border:1px dashed rgba(201,168,76,.3);border-radius:8px;padding:9px;text-align:center;font-size:.73rem;color:var(--gold);cursor:pointer;transition:all .2s;}
+.sb-add-btn:hover{background:rgba(201,168,76,.18);border-color:var(--gold);}
+
+/* Editor area */
+.sb-editor{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;}
+.sb-editor-topbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2);}
+.sb-screen-title-input{flex:1;background:transparent;border:none;outline:none;font-size:.85rem;font-weight:600;color:var(--text);font-family:'IBM Plex Sans',sans-serif;}
+.sb-editor-body{display:flex;flex:1;min-height:0;}
+.sb-canvas{flex:1;padding:16px;overflow-y:auto;min-height:280px;}
+.sb-toolbar{width:180px;border-left:1px solid var(--border);padding:12px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
+.sb-toolbar-title{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:2px;}
+.sb-block-btn{display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:.72rem;color:var(--text-muted);transition:all .15s;user-select:none;}
+.sb-block-btn:hover{color:var(--text);border-color:var(--gold);background:var(--gold-dim);}
+.sb-block-icon{font-size:.85rem;width:16px;text-align:center;}
+
+/* Canvas blocks */
+.sc-block{position:relative;margin-bottom:8px;border-radius:8px;border:1px solid transparent;transition:border-color .15s;cursor:pointer;}
+.sc-block:hover{border-color:var(--border2);}
+.sc-block.selected{border-color:var(--gold) !important;box-shadow:0 0 0 1px var(--gold-dim);}
+.sc-block .del-block{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:4px;background:rgba(231,76,60,.85);color:#fff;font-size:.6rem;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+.sc-block:hover .del-block,.sc-block.selected .del-block{display:flex;}
+/* Block types */
+.sb-blk-heading{padding:10px 12px;}
+.sb-blk-heading h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text);outline:none;border:none;background:transparent;width:100%;font-weight:700;}
+.sb-blk-para{padding:10px 12px;}
+.sb-blk-para p{font-size:.8rem;color:var(--text-muted);line-height:1.65;outline:none;width:100%;}
+.sb-blk-btn-row{padding:10px 12px;display:flex;gap:8px;flex-wrap:wrap;}
+.sb-blk-label{padding:10px 12px;display:flex;flex-direction:column;gap:4px;}
+.sb-blk-label .lbl-txt{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;outline:none;}
+.sb-blk-label input{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:.78rem;color:var(--text);font-family:'IBM Plex Sans',sans-serif;outline:none;width:100%;}
+.sb-blk-nav{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:8px;}
+.sb-blk-nav .nav-logo{font-family:'Playfair Display',serif;font-size:.85rem;color:var(--gold-light);outline:none;}
+.sb-blk-nav .nav-items{display:flex;gap:12px;}
+.sb-blk-nav .nav-items span{font-size:.7rem;color:var(--text-muted);outline:none;cursor:pointer;}
+.sb-blk-divider{padding:6px 12px;display:flex;align-items:center;gap:8px;}
+.sb-blk-divider .div-lbl{font-size:.62rem;color:var(--text-dim);white-space:nowrap;outline:none;}
+.sb-blk-divider::before,.sb-blk-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.sb-blk-image{padding:10px 12px;}
+.sb-blk-image .img-ph{height:80px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--text-dim);}
+.sb-blk-list{padding:10px 12px;}
+.sb-blk-list ul{padding-left:16px;}
+.sb-blk-list li{font-size:.78rem;color:var(--text-muted);line-height:1.7;outline:none;}
+.sb-blk-badge{padding:10px 12px;display:flex;gap:6px;flex-wrap:wrap;}
+.sc-badge{background:var(--gold-dim);border:1px solid rgba(201,168,76,.25);color:var(--gold-light);border-radius:6px;padding:3px 10px;font-size:.7rem;outline:none;}
+
+/* RTL block overrides */
+.sc-block[dir="rtl"] .sb-blk-heading h2,
+.sc-block[dir="rtl"] .sb-blk-para p,
+.sc-block[dir="rtl"] .sb-blk-label .lbl-txt,
+.sc-block[dir="rtl"] .sb-blk-list li,
+.sc-block[dir="rtl"] .sb-blk-nav .nav-logo,
+.sc-block[dir="rtl"] .sb-blk-nav .nav-items span,
+.sc-block[dir="rtl"] .sb-blk-divider .div-lbl,
+.sc-block[dir="rtl"] .sb-blk-badge .sc-badge{font-family:'Noto Naskh Arabic',serif;}
+.sc-block[dir="rtl"]{direction:rtl;text-align:right;}
+.sc-block[dir="rtl"] .sb-blk-nav{flex-direction:row-reverse;}
+.sc-block[dir="rtl"] .sb-blk-nav .nav-items{flex-direction:row-reverse;}
+.sc-block[dir="rtl"] .sb-blk-label input{direction:rtl;text-align:right;font-family:'Noto Naskh Arabic',sans-serif;}
+.sc-block[dir="rtl"] .sb-blk-btn-row{flex-direction:row-reverse;}
+.sc-block[dir="rtl"] .sb-blk-list ul{padding-left:0;padding-right:16px;}
+.sc-block[dir="rtl"] .del-block{right:auto;left:4px;}
+
+/* Preview split */
+.sb-preview{display:flex;gap:12px;}
+.sb-preview-pane{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.sb-preview-pane-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);}
+.sb-pane-label{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;}
+.sb-pane-dir{font-size:.6rem;color:var(--text-dim);border:1px solid var(--border);border-radius:4px;padding:2px 7px;}
+.sb-preview-content{padding:14px;min-height:120px;}
+
+/* Translate bar */
+.sb-translate-bar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;}
+.sb-translate-info{flex:1;font-size:.75rem;color:var(--text-muted);}
+.sb-translate-info strong{color:var(--gold-light);display:block;font-size:.78rem;margin-bottom:2px;}
+.sb-t-status{font-size:.68rem;padding:3px 9px;border-radius:5px;border:1px solid var(--border);}
+.sb-t-status.idle{color:var(--text-dim);}
+.sb-t-status.running{color:var(--gold);border-color:var(--gold);animation:tpulse 1s infinite;}
+.sb-t-status.done{color:var(--green);border-color:var(--green);}
+@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Empty state */
+.sb-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:10px;color:var(--text-dim);text-align:center;}
+.sb-empty-icon{font-size:2rem;opacity:.4;}
+.sb-empty-title{font-size:.82rem;color:var(--text-muted);}
+.sb-empty-sub{font-size:.7rem;line-height:1.6;max-width:200px;}
+
+/* ── BUTTONS ── */
+.btn{border:none;cursor:pointer;border-radius:7px;font-size:.73rem;font-weight:500;padding:7px 13px;transition:all .2s;font-family:'IBM Plex Sans',sans-serif;line-height:1;}
+.btn-gold{background:var(--gold);color:#0c0b09;}
+.btn-gold:hover{background:var(--gold-light);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--text);border-color:var(--text-dim);}
+.card[dir="rtl"] .btn{font-family:'Noto Naskh Arabic',sans-serif;font-size:.8rem;}
+
+/* ── LIVE TRANSLATE ── */
+.live-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px;}
+.panel-title{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;}
+.input-row{display:flex;gap:10px;flex-wrap:wrap;}
+.live-input{flex:1;min-width:160px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 13px;font-size:.83rem;color:var(--text);font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .2s;}
+.live-input:focus{border-color:var(--gold);}
+.live-output{flex:1;min-width:160px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 13px;font-size:.9rem;color:var(--gold-light);font-family:'Noto Naskh Arabic',serif;direction:rtl;text-align:right;min-height:44px;display:flex;align-items:center;justify-content:flex-end;}
+.quick-pills{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.qpill{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:.68rem;color:var(--text-muted);cursor:pointer;transition:all .15s;user-select:none;}
+.qpill:hover{color:var(--text);border-color:var(--text-dim);}
+.live-preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;display:flex;gap:16px;flex-wrap:wrap;}
+.live-card-wrap{flex:1;min-width:200px;}
+.live-card-label{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.live-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:.88rem;color:var(--text);min-height:50px;display:flex;align-items:center;}
+.live-card[dir="rtl"]{font-family:'Noto Naskh Arabic',serif;font-size:.95rem;justify-content:flex-end;}
+
+/* ── EXPORT ── */
+.export-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px;}
+.export-tabs{display:flex;gap:5px;flex-wrap:wrap;}
+.export-tab{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 13px;font-size:.7rem;color:var(--text-muted);cursor:pointer;transition:all .15s;user-select:none;}
+.export-tab.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light);}
+.code-wrap{position:relative;}
+.code-block{background:#0a0a08;border:1px solid var(--border);border-radius:8px;padding:14px 14px 14px 14px;font-family:'IBM Plex Mono',monospace;font-size:.67rem;color:#9ecb8a;line-height:1.75;white-space:pre;overflow-x:auto;max-height:200px;overflow-y:auto;}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:.63rem;color:var(--text-muted);cursor:pointer;transition:all .15s;}
+.copy-btn:hover{color:var(--text);}
+.copy-btn.copied{color:var(--green);border-color:var(--green);}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">RTL Studio <span>Arabic Layout Tool</span></div>
+  <div class="toggle-pill" onclick="globalToggle()">
+    <span class="lbl" id="lbl-en" style="color:var(--gold-light);font-weight:600">EN</span>
+    <div class="track" id="gtrack"><div class="thumb"></div></div>
+    <span class="lbl" id="lbl-ar">عربي</span>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">Components</div>
+    <div class="nav-item active" onclick="showSec('cards')" id="ni-cards"><span class="nav-icon">🃏</span>Cards</div>
+    <div class="nav-item" onclick="showSec('navbar')" id="ni-navbar"><span class="nav-icon">🧭</span>Navigation</div>
+    <div class="nav-item" onclick="showSec('form')" id="ni-form"><span class="nav-icon">📝</span>Form</div>
+    <div class="nav-item" onclick="showSec('notif')" id="ni-notif"><span class="nav-icon">🔔</span>Notifications</div>
+    <div class="nav-item" onclick="showSec('screens')" id="ni-screens"><span class="nav-icon">🖥️</span>Screen Builder</div>
+    <div class="sidebar-section" style="margin-top:6px">Tools</div>
+    <div class="nav-item" onclick="showSec('live')" id="ni-live"><span class="nav-icon">⚡</span>Live Translate</div>
+    <div class="nav-item" onclick="showSec('export')" id="ni-export"><span class="nav-icon">📦</span>Export CSS</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- CARDS SECTION -->
+    <div id="sec-cards">
+      <div class="section-label">Card Gallery — 3 variants</div>
+      <div class="cards-grid">
+
+        <!-- Profile Card -->
+        <div class="card" id="card-profile" dir="ltr">
+          <div class="profile-banner"></div>
+          <div class="profile-body">
+            <div class="profile-av-wrap"><div class="profile-av">👤</div></div>
+            <div class="profile-name" data-en="Sarah Al-Mahmoud" data-ar="سارة المحمود">Sarah Al-Mahmoud</div>
+            <div class="profile-role" data-en="UX Design Lead" data-ar="قائدة تصميم تجربة المستخدم">UX Design Lead</div>
+            <div class="profile-bio" data-en="Crafting digital experiences across 12 countries with a focus on accessible, human-centered design." data-ar="تصنع تجارب رقمية في 12 دولة مع التركيز على التصميم المتمحور حول الإنسان.">Crafting digital experiences across 12 countries with a focus on accessible, human-centered design.</div>
+            <div class="profile-stats">
+              <div class="pstat"><div class="pstat-val">142</div><div class="pstat-lbl" data-en="Projects" data-ar="مشروع">Projects</div></div>
+              <div class="pstat"><div class="pstat-val">4.9★</div><div class="pstat-lbl" data-en="Rating" data-ar="التقييم">Rating</div></div>
+              <div class="pstat"><div class="pstat-val">8yr</div><div class="pstat-lbl" data-en="Tenure" data-ar="الخبرة">Tenure</div></div>
+            </div>
+            <div class="profile-actions">
+              <button class="btn btn-gold" data-en="Message" data-ar="رسالة">Message</button>
+              <button class="btn btn-ghost" data-en="Follow" data-ar="متابعة">Follow</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Card -->
+        <div class="card" id="card-product" dir="ltr">
+          <div class="product-img">⌚</div>
+          <div class="product-body">
+            <div class="product-cat" data-en="Smart Wearables" data-ar="الأجهزة الذكية القابلة للارتداء">Smart Wearables</div>
+            <div class="product-name" data-en="Orion Pro Watch" data-ar="ساعة أوريون برو">Orion Pro Watch</div>
+            <div class="product-desc" data-en="Precision-crafted titanium case with AMOLED display and 7-day battery life. Available in 3 finishes." data-ar="علبة تيتانيوم مصنوعة بدقة مع شاشة AMOLED وعمر بطارية 7 أيام. متوفرة بثلاثة ألوان.">Precision-crafted titanium case with AMOLED display and 7-day battery life. Available in 3 finishes.</div>
+            <div class="product-footer">
+              <div class="product-price">$349 <sub data-en="incl. VAT" data-ar="شامل ض.ق.م">incl. VAT</sub></div>
+              <div class="stars">★★★★★</div>
+            </div>
+            <div class="product-actions">
+              <button class="btn btn-gold" style="flex:1" data-en="Add to Cart" data-ar="أضف إلى السلة">Add to Cart</button>
+              <button class="btn btn-ghost" data-en="♡ Save" data-ar="♡ حفظ">♡ Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Card -->
+        <div class="card" id="card-dash" dir="ltr">
+          <div class="dash-header">
+            <div class="dash-title" data-en="Monthly Revenue" data-ar="الإيرادات الشهرية">Monthly Revenue</div>
+            <div class="dash-period" data-en="2025 Q4" data-ar="ر4 2025">2025 Q4</div>
+          </div>
+          <div class="dash-body">
+            <div class="kpi-row">
+              <div class="kpi">
+                <div class="kpi-label" data-en="Total" data-ar="الإجمالي">Total</div>
+                <div class="kpi-value">$2.4M</div>
+                <div class="kpi-delta up" data-en="↑ 18% MoM" data-ar="↑ 18% شهرياً">↑ 18% MoM</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label" data-en="Avg Deal" data-ar="متوسط الصفقة">Avg Deal</div>
+                <div class="kpi-value">$12K</div>
+                <div class="kpi-delta dn" data-en="↓ 3% MoM" data-ar="↓ 3% شهرياً">↓ 3% MoM</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label" data-en="Clients" data-ar="العملاء">Clients</div>
+                <div class="kpi-value">198</div>
+                <div class="kpi-delta up" data-en="↑ 24 new" data-ar="↑ 24 جديد">↑ 24 new</div>
+              </div>
+            </div>
+            <div class="mini-bars">
+              <div class="bar" style="height:40%"></div>
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:35%"></div>
+              <div class="bar" style="height:70%"></div>
+              <div class="bar hi" style="height:90%"></div>
+              <div class="bar" style="height:65%"></div>
+              <div class="bar" style="height:80%"></div>
+            </div>
+            <div class="bar-labels">
+              <div class="bar-lbl" data-en="Jun" data-ar="يون">Jun</div>
+              <div class="bar-lbl" data-en="Jul" data-ar="يول">Jul</div>
+              <div class="bar-lbl" data-en="Aug" data-ar="أغس">Aug</div>
+              <div class="bar-lbl" data-en="Sep" data-ar="سبت">Sep</div>
+              <div class="bar-lbl" data-en="Oct" data-ar="أكت">Oct</div>
+              <div class="bar-lbl" data-en="Nov" data-ar="نوف">Nov</div>
+              <div class="bar-lbl" data-en="Dec" data-ar="ديس">Dec</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NAVBAR SECTION -->
+    <div id="sec-navbar" style="display:none">
+      <div class="section-label">Navigation Bar Component</div>
+      <div class="card" id="card-nav" dir="ltr" style="max-width:580px">
+        <div class="nav-bar">
+          <div class="nav-brand" data-en="Lumina" data-ar="لومينا">Lumina</div>
+          <div class="nav-links">
+            <div class="nav-link active-link" data-en="Home" data-ar="الرئيسية">Home</div>
+            <div class="nav-link" data-en="Products" data-ar="المنتجات">Products</div>
+            <div class="nav-link" data-en="About" data-ar="عن الشركة">About</div>
+            <div class="nav-link" data-en="Contact" data-ar="تواصل معنا">Contact</div>
+          </div>
+          <button class="btn btn-gold" data-en="Sign In" data-ar="تسجيل الدخول">Sign In</button>
+        </div>
+        <div class="hero">
+          <div class="hero-eyebrow" data-en="New Collection 2025" data-ar="المجموعة الجديدة 2025">New Collection 2025</div>
+          <div class="hero-title" data-en="Design That Speaks Without Words" data-ar="تصميم يتحدث بلا كلمات">Design That Speaks Without Words</div>
+          <div class="hero-body" data-en="Explore our curated selection of minimalist tools built for creative professionals who demand both beauty and function." data-ar="استكشف مجموعتنا المختارة من الأدوات البسيطة المصممة للمحترفين المبدعين الذين يطالبون بالجمال والوظيفة معاً.">Explore our curated selection of minimalist tools built for creative professionals who demand both beauty and function.</div>
+          <div class="hero-actions">
+            <button class="btn btn-gold" data-en="Explore Now" data-ar="استكشف الآن">Explore Now</button>
+            <button class="btn btn-ghost" data-en="Learn More" data-ar="اعرف أكثر">Learn More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM SECTION -->
+    <div id="sec-form" style="display:none">
+      <div class="section-label">Form Component</div>
+      <div class="card" id="card-form" dir="ltr" style="max-width:400px">
+        <div class="form-body">
+          <div class="form-title" data-en="Create Account" data-ar="إنشاء حساب">Create Account</div>
+          <div class="form-sub" data-en="Join thousands of professionals worldwide." data-ar="انضم إلى آلاف المحترفين حول العالم.">Join thousands of professionals worldwide.</div>
+          <div class="field">
+            <label data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
+            <input type="text" id="fi-name" data-en-ph="e.g. Ahmed Al-Rashid" data-ar-ph="مثال: أحمد الراشد" placeholder="e.g. Ahmed Al-Rashid">
+          </div>
+          <div class="field">
+            <label data-en="Email Address" data-ar="عنوان البريد الإلكتروني">Email Address</label>
+            <input type="email" id="fi-email" data-en-ph="you@company.com" data-ar-ph="أنت@شركة.com" placeholder="you@company.com">
+          </div>
+          <div class="field">
+            <label data-en="Country" data-ar="الدولة">Country</label>
+            <select id="fi-country">
+              <option data-en="Saudi Arabia" data-ar="المملكة العربية السعودية">Saudi Arabia</option>
+              <option data-en="United Arab Emirates" data-ar="الإمارات العربية المتحدة">United Arab Emirates</option>
+              <option data-en="Egypt" data-ar="مصر">Egypt</option>
+              <option data-en="Jordan" data-ar="الأردن">Jordan</option>
+              <option data-en="Kuwait" data-ar="الكويت">Kuwait</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-gold" style="flex:1" data-en="Create Account" data-ar="إنشاء الحساب">Create Account</button>
+            <button class="btn btn-ghost" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS SECTION -->
+    <div id="sec-notif" style="display:none">
+      <div class="section-label">Notification Panel</div>
+      <div class="card" id="card-notif" dir="ltr" style="max-width:400px">
+        <div class="notif-hdr">
+          <div class="notif-hdr-title" data-en="Notifications" data-ar="الإشعارات">Notifications</div>
+          <div class="notif-clear" data-en="Mark all read" data-ar="تعليم الكل كمقروء">Mark all read</div>
+        </div>
+        <div class="notif-list" style="margin-top:8px">
+          <div class="notif-item">
+            <div class="ndot blue"></div>
+            <div class="notif-cnt">
+              <div class="notif-title" data-en="New team member added" data-ar="تمت إضافة عضو فريق جديد">New team member added</div>
+              <div class="notif-desc" data-en="Fatima joined the Design team and has been assigned 3 projects." data-ar="انضمت فاطمة إلى فريق التصميم وتم تعيين 3 مشاريع لها.">Fatima joined the Design team and has been assigned 3 projects.</div>
+            </div>
+            <div class="notif-time">2m</div>
+          </div>
+          <div class="notif-item">
+            <div class="ndot green"></div>
+            <div class="notif-cnt">
+              <div class="notif-title" data-en="Payment received" data-ar="تم استلام الدفعة">Payment received</div>
+              <div class="notif-desc" data-en="Invoice #4821 paid — $12,500 credited to your account." data-ar="تم دفع الفاتورة رقم 4821 — تمت إضافة 12,500 دولار إلى حسابك.">Invoice #4821 paid — $12,500 credited to your account.</div>
+            </div>
+            <div class="notif-time">1h</div>
+          </div>
+          <div class="notif-item">
+            <div class="ndot gold"></div>
+            <div class="notif-cnt">
+              <div class="notif-title" data-en="Review requested" data-ar="طلب مراجعة">Review requested</div>
+              <div class="notif-desc" data-en="Omar shared a prototype for your feedback on mobile onboarding." data-ar="شارك عمر نموذجاً للحصول على ملاحظاتك حول التوجيه على الهاتف.">Omar shared a prototype for your feedback on mobile onboarding.</div>
+            </div>
+            <div class="notif-time">3h</div>
+          </div>
+          <div class="notif-item">
+            <div class="ndot grey"></div>
+            <div class="notif-cnt">
+              <div class="notif-title" data-en="System maintenance" data-ar="صيانة النظام">System maintenance</div>
+              <div class="notif-desc" data-en="Scheduled downtime Saturday 02:00–04:00 UTC." data-ar="توقف مجدول يوم السبت من 02:00 إلى 04:00 UTC.">Scheduled downtime Saturday 02:00–04:00 UTC.</div>
+            </div>
+            <div class="notif-time">1d</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN BUILDER SECTION -->
+    <div id="sec-screens" style="display:none">
+      <div class="section-label">Screen Builder — Add screens, translate to Arabic</div>
+
+      <!-- Translate bar -->
+      <div class="sb-translate-bar">
+        <div class="sb-translate-info">
+          <strong>AI Translation</strong>
+          Paste or build your screen, then hit Translate — all text blocks are sent to Claude and replaced with Arabic with full RTL layout applied.
+        </div>
+        <span class="sb-t-status idle" id="t-status">Ready</span>
+        <button class="btn btn-gold" onclick="translateScreen()" id="translate-btn">✦ Translate Screen</button>
+      </div>
+
+      <!-- Main layout -->
+      <div class="sb-layout">
+
+        <!-- Left: screen list -->
+        <div class="sb-left">
+          <div class="sb-panel-title">
+            <span>Screens</span>
+            <span id="screen-count" style="color:var(--text-dim);font-size:.65rem">0 screens</span>
+          </div>
+          <div class="sb-screens-list" id="screens-list">
+            <div class="sb-empty" id="screens-empty">
+              <div class="sb-empty-icon">🖥️</div>
+              <div class="sb-empty-title">No screens yet</div>
+              <div class="sb-empty-sub">Click below to add your first screen</div>
+            </div>
+          </div>
+          <div class="sb-add-btn" onclick="addScreen()">＋ Add New Screen</div>
+        </div>
+
+        <!-- Right: editor + preview -->
+        <div class="sb-right" style="margin-left:14px">
+
+          <!-- Editor -->
+          <div class="sb-editor" id="sb-editor">
+            <div class="sb-editor-topbar">
+              <input class="sb-screen-title-input" id="screen-title-input" placeholder="Screen name…" oninput="updateScreenName()" disabled>
+              <span style="font-size:.65rem;color:var(--text-dim)" id="block-count">— no screen selected</span>
+            </div>
+            <div class="sb-editor-body">
+              <!-- Canvas -->
+              <div class="sb-canvas" id="sb-canvas">
+                <div class="sb-empty" id="canvas-empty">
+                  <div class="sb-empty-icon">✦</div>
+                  <div class="sb-empty-title">Select or create a screen</div>
+                  <div class="sb-empty-sub">Then add blocks from the toolbar on the right</div>
+                </div>
+              </div>
+              <!-- Toolbar -->
+              <div class="sb-toolbar" id="sb-toolbar">
+                <div class="sb-toolbar-title">Add Block</div>
+                <div class="sb-block-btn" onclick="addBlock('nav')"><span class="sb-block-icon">🧭</span>Navbar</div>
+                <div class="sb-block-btn" onclick="addBlock('heading')"><span class="sb-block-icon">Hh</span>Heading</div>
+                <div class="sb-block-btn" onclick="addBlock('para')"><span class="sb-block-icon">¶</span>Paragraph</div>
+                <div class="sb-block-btn" onclick="addBlock('label')"><span class="sb-block-icon">🏷</span>Input Field</div>
+                <div class="sb-block-btn" onclick="addBlock('btnrow')"><span class="sb-block-icon">⬛</span>Button Row</div>
+                <div class="sb-block-btn" onclick="addBlock('badge')"><span class="sb-block-icon">🔖</span>Badges</div>
+                <div class="sb-block-btn" onclick="addBlock('list')"><span class="sb-block-icon">☰</span>List</div>
+                <div class="sb-block-btn" onclick="addBlock('image')"><span class="sb-block-icon">🖼</span>Image Box</div>
+                <div class="sb-block-btn" onclick="addBlock('divider')"><span class="sb-block-icon">—</span>Divider</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Side-by-side Preview -->
+          <div class="sb-preview" id="sb-preview">
+            <div class="sb-preview-pane">
+              <div class="sb-preview-pane-header">
+                <span class="sb-pane-label">Original (LTR)</span>
+                <span class="sb-pane-dir">← →</span>
+              </div>
+              <div class="sb-preview-content" id="preview-ltr">
+                <div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Build your screen above to preview it here</div>
+              </div>
+            </div>
+            <div class="sb-preview-pane">
+              <div class="sb-preview-pane-header">
+                <span class="sb-pane-label" style="font-family:'Noto Naskh Arabic',serif">معاينة العربية (RTL)</span>
+                <span class="sb-pane-dir">→ ←</span>
+              </div>
+              <div class="sb-preview-content" id="preview-rtl">
+                <div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Translate to see Arabic preview</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE TRANSLATE SECTION -->
+    <div id="sec-live" style="display:none">
+      <div class="section-label">Live Text Translator</div>
+      <div class="live-panel">
+        <div class="panel-title">Type English → see Arabic with RTL layout applied instantly</div>
+        <div class="input-row">
+          <input class="live-input" id="live-in" placeholder="Type any label, button, or title…" oninput="liveTranslate()">
+          <div class="live-output" id="live-out">ابدأ الكتابة…</div>
+        </div>
+        <div class="quick-pills" id="qpills">
+          <span style="font-size:.63rem;color:var(--text-dim)">Try:</span>
+        </div>
+      </div>
+      <div class="live-preview" style="margin-top:0">
+        <div class="live-card-wrap">
+          <div class="live-card-label">LTR (English)</div>
+          <div class="live-card" id="lc-en" dir="ltr">Your text here</div>
+        </div>
+        <div class="live-card-wrap">
+          <div class="live-card-label">RTL (Arabic)</div>
+          <div class="live-card" id="lc-ar" dir="rtl" style="font-family:'Noto Naskh Arabic',serif;justify-content:flex-end">النص هنا</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPORT SECTION -->
+    <div id="sec-export" style="display:none">
+      <div class="section-label">Export RTL CSS</div>
+      <div class="export-panel">
+        <div class="panel-title">Copy production-ready CSS snippets for Arabic/RTL support</div>
+        <div class="export-tabs">
+          <div class="export-tab active" onclick="switchTab('base')">Base RTL</div>
+          <div class="export-tab" onclick="switchTab('flex')">Flexbox</div>
+          <div class="export-tab" onclick="switchTab('typo')">Typography</div>
+          <div class="export-tab" onclick="switchTab('forms')">Forms</div>
+          <div class="export-tab" onclick="switchTab('logical')">Logical Props</div>
+        </div>
+        <div class="code-wrap">
+          <div class="code-block" id="code-out"></div>
+          <button class="copy-btn" id="copy-btn" onclick="copyCode()">Copy</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── STATE ──
+let isArabic = false;
+
+const ALL_CARDS = ['card-profile','card-product','card-dash','card-nav','card-form','card-notif'];
+
+// ── SECTION NAV ──
+const SECTIONS = ['cards','navbar','form','notif','screens','live','export'];
+function showSec(name) {
+  SECTIONS.forEach(s => {
+    document.getElementById('sec-'+s).style.display = s===name ? '' : 'none';
+    document.getElementById('ni-'+s).classList.toggle('active', s===name);
+  });
+  if (name==='export') renderCode();
+}
+
+// ══════════════════════════════════════════
+// ── SCREEN BUILDER ──
+// ══════════════════════════════════════════
+
+let screens = [];       // [{id, name, blocks:[{id,type,data}]}]
+let activeScreenId = null;
+let selectedBlockId = null;
+let blockSeq = 0;
+
+const BLOCK_DEFAULTS = {
+  nav:     { logo:'MyApp', links:['Home','Products','About','Contact'], btn:'Sign Up' },
+  heading: { text:'Screen Title Goes Here' },
+  para:    { text:'Add your description or body copy here. This text will be translated into Arabic with the correct RTL layout applied automatically.' },
+  label:   { label:'Field Label', placeholder:'Enter value here…' },
+  btnrow:  { buttons:[{text:'Primary Action',type:'gold'},{text:'Cancel',type:'ghost'}] },
+  badge:   { items:['Design','Analytics','Verified','Active'] },
+  list:    { items:['First item in the list','Second item in the list','Third item in the list'] },
+  image:   { caption:'Image placeholder' },
+  divider: { label:'Section' },
+};
+
+function screenEmoji(name) {
+  const map = { home:'🏠', dashboard:'📊', profile:'👤', settings:'⚙️', login:'🔐', checkout:'🛒', about:'ℹ️', contact:'📬', product:'📦' };
+  const k = name.toLowerCase();
+  for (const [kw, em] of Object.entries(map)) if (k.includes(kw)) return em;
+  return '🖥️';
+}
+
+function addScreen() {
+  const id = 'scr_' + Date.now();
+  const name = 'Screen ' + (screens.length + 1);
+  screens.push({ id, name, blocks: [], arBlocks: null });
+  renderScreenList();
+  selectScreen(id);
+}
+
+function deleteScreen(id, e) {
+  e.stopPropagation();
+  screens = screens.filter(s => s.id !== id);
+  if (activeScreenId === id) {
+    activeScreenId = screens.length ? screens[screens.length-1].id : null;
+  }
+  renderScreenList();
+  if (activeScreenId) selectScreen(activeScreenId);
+  else clearCanvas();
+}
+
+function renderScreenList() {
+  const list = document.getElementById('screens-list');
+  const empty = document.getElementById('screens-empty');
+  const count = document.getElementById('screen-count');
+  count.textContent = screens.length + ' screen' + (screens.length!==1?'s':'');
+  if (!screens.length) { empty.style.display=''; list.innerHTML=''; list.appendChild(empty); return; }
+  empty.style.display = 'none';
+  // rebuild
+  list.innerHTML = '';
+  screens.forEach(sc => {
+    const el = document.createElement('div');
+    el.className = 'sb-screen-item' + (sc.id===activeScreenId?' active':'');
+    el.onclick = () => selectScreen(sc.id);
+    el.innerHTML = `
+      <div class="sb-screen-thumb">${screenEmoji(sc.name)}</div>
+      <div class="sb-screen-name">${sc.name}</div>
+      ${sc.arBlocks ? '<span style="font-size:.6rem;color:var(--green)">✓ AR</span>' : ''}
+      <span class="sb-screen-del" onclick="deleteScreen('${sc.id}',event)" title="Delete">✕</span>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function selectScreen(id) {
+  activeScreenId = id;
+  renderScreenList();
+  const sc = screens.find(s => s.id===id);
+  if (!sc) return;
+  document.getElementById('screen-title-input').value = sc.name;
+  document.getElementById('screen-title-input').disabled = false;
+  renderCanvas(sc);
+  renderPreviews(sc);
+}
+
+function clearCanvas() {
+  document.getElementById('screen-title-input').value = '';
+  document.getElementById('screen-title-input').disabled = true;
+  document.getElementById('block-count').textContent = '— no screen selected';
+  document.getElementById('sb-canvas').innerHTML = '';
+  const e = document.createElement('div'); e.className='sb-empty'; e.id='canvas-empty';
+  e.innerHTML = '<div class="sb-empty-icon">✦</div><div class="sb-empty-title">Select or create a screen</div><div class="sb-empty-sub">Then add blocks from the toolbar</div>';
+  document.getElementById('sb-canvas').appendChild(e);
+  document.getElementById('preview-ltr').innerHTML = '<div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Build your screen above</div>';
+  document.getElementById('preview-rtl').innerHTML = '<div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Translate to see Arabic</div>';
+}
+
+function updateScreenName() {
+  const sc = screens.find(s => s.id===activeScreenId);
+  if (!sc) return;
+  sc.name = document.getElementById('screen-title-input').value || 'Untitled';
+  renderScreenList();
+}
+
+// ── BLOCKS ──
+function addBlock(type) {
+  const sc = screens.find(s => s.id===activeScreenId);
+  if (!sc) return;
+  const block = { id: 'blk_'+(++blockSeq), type, data: JSON.parse(JSON.stringify(BLOCK_DEFAULTS[type])) };
+  sc.blocks.push(block);
+  sc.arBlocks = null; // invalidate translation
+  renderCanvas(sc);
+  renderPreviews(sc);
+}
+
+function deleteBlock(blockId) {
+  const sc = screens.find(s => s.id===activeScreenId);
+  if (!sc) return;
+  sc.blocks = sc.blocks.filter(b => b.id!==blockId);
+  sc.arBlocks = null;
+  selectedBlockId = null;
+  renderCanvas(sc);
+  renderPreviews(sc);
+}
+
+function renderCanvas(sc) {
+  const canvas = document.getElementById('sb-canvas');
+  const count = document.getElementById('block-count');
+  canvas.innerHTML = '';
+  count.textContent = sc.blocks.length + ' block' + (sc.blocks.length!==1?'s':'');
+  if (!sc.blocks.length) {
+    canvas.innerHTML = '<div class="sb-empty" style="padding:30px 20px"><div class="sb-empty-icon" style="opacity:.3">＋</div><div class="sb-empty-title">No blocks yet</div><div class="sb-empty-sub">Add blocks from the toolbar →</div></div>';
+    return;
+  }
+  sc.blocks.forEach(blk => {
+    const el = buildBlockEl(blk, 'ltr', true);
+    el.onclick = (e) => { e.stopPropagation(); selectedBlockId=blk.id; canvas.querySelectorAll('.sc-block').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); };
+    canvas.appendChild(el);
+  });
+}
+
+function buildBlockEl(blk, dir, editable) {
+  const wrap = document.createElement('div');
+  wrap.className = 'sc-block';
+  wrap.setAttribute('dir', dir);
+  const d = blk.data;
+  const ar = dir==='rtl';
+  const ff = ar ? "font-family:'Noto Naskh Arabic',serif;" : '';
+  const fs = ar ? 'font-size:1.05em;' : '';
+
+  if (editable) {
+    const del = document.createElement('div');
+    del.className = 'del-block'; del.textContent = '✕';
+    del.onclick = (e) => { e.stopPropagation(); deleteBlock(blk.id); };
+    wrap.appendChild(del);
+  }
+
+  let inner = '';
+  switch(blk.type) {
+    case 'nav':
+      inner = `<div class="sb-blk-nav">
+        <div class="nav-logo" style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${d.logo}</div>
+        <div class="nav-items">${d.links.map(l=>`<span style="${ff}" ${editable?'contenteditable="true"':''}>${l}</span>`).join('')}</div>
+        <button class="btn btn-gold" style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${d.btn}</button>
+      </div>`; break;
+    case 'heading':
+      inner = `<div class="sb-blk-heading"><h2 style="${ff}" ${editable?'contenteditable="true"':''}>${d.text}</h2></div>`; break;
+    case 'para':
+      inner = `<div class="sb-blk-para"><p style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${d.text}</p></div>`; break;
+    case 'label':
+      inner = `<div class="sb-blk-label">
+        <div class="lbl-txt" style="${ff}" ${editable?'contenteditable="true"':''}>${d.label}</div>
+        <input type="text" placeholder="${d.placeholder}" style="${ff}${fs}" ${editable?'':'disabled'}>
+      </div>`; break;
+    case 'btnrow':
+      inner = `<div class="sb-blk-btn-row">${d.buttons.map(b=>`<button class="btn btn-${b.type}" style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${b.text}</button>`).join('')}</div>`; break;
+    case 'badge':
+      inner = `<div class="sb-blk-badge">${d.items.map(i=>`<span class="sc-badge" style="${ff}" ${editable?'contenteditable="true"':''}>${i}</span>`).join('')}</div>`; break;
+    case 'list':
+      inner = `<div class="sb-blk-list"><ul>${d.items.map(i=>`<li style="${ff}${fs}" ${editable?'contenteditable="true"':''}>${i}</li>`).join('')}</ul></div>`; break;
+    case 'image':
+      inner = `<div class="sb-blk-image"><div class="img-ph" style="${ff}">🖼 ${d.caption}</div></div>`; break;
+    case 'divider':
+      inner = `<div class="sb-blk-divider"><span class="div-lbl" style="${ff}" ${editable?'contenteditable="true"':''}>${d.label}</span></div>`; break;
+  }
+  wrap.innerHTML = (wrap.innerHTML || '') + inner;
+  return wrap;
+}
+
+function renderPreviews(sc) {
+  const ltr = document.getElementById('preview-ltr');
+  const rtl = document.getElementById('preview-rtl');
+  ltr.innerHTML = '';
+  rtl.innerHTML = '';
+  if (!sc.blocks.length) {
+    ltr.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Add blocks to preview</div>';
+    rtl.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim);text-align:center;padding:20px 0">Translate to see Arabic</div>';
+    return;
+  }
+  sc.blocks.forEach(blk => ltr.appendChild(buildBlockEl(blk,'ltr',false)));
+  if (sc.arBlocks && sc.arBlocks.length) {
+    sc.arBlocks.forEach(blk => rtl.appendChild(buildBlockEl(blk,'rtl',false)));
+  } else {
+    rtl.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);text-align:center;padding:30px 16px;line-height:1.6">
+      <div style="font-size:1.5rem;margin-bottom:8px">✦</div>
+      Click <strong style="color:var(--gold)">Translate Screen</strong><br>to generate Arabic RTL preview
+    </div>`;
+  }
+}
+
+// ── TRANSLATE via Claude API ──
+async function translateScreen() {
+  const sc = screens.find(s => s.id===activeScreenId);
+  if (!sc || !sc.blocks.length) {
+    alert('Please select a screen with at least one block first.');
+    return;
+  }
+
+  const btn = document.getElementById('translate-btn');
+  const status = document.getElementById('t-status');
+  btn.disabled = true;
+  btn.textContent = '⏳ Translating…';
+  status.className = 'sb-t-status running';
+  status.textContent = 'Translating…';
+
+  // Build a clean text map to send to Claude
+  const textMap = {};
+  sc.blocks.forEach(blk => {
+    const d = blk.data;
+    const entry = {};
+    switch(blk.type) {
+      case 'nav':     entry.logo=d.logo; entry.links=d.links; entry.btn=d.btn; break;
+      case 'heading': entry.text=d.text; break;
+      case 'para':    entry.text=d.text; break;
+      case 'label':   entry.label=d.label; entry.placeholder=d.placeholder; break;
+      case 'btnrow':  entry.buttons=d.buttons.map(b=>b.text); break;
+      case 'badge':   entry.items=d.items; break;
+      case 'list':    entry.items=d.items; break;
+      case 'image':   entry.caption=d.caption; break;
+      case 'divider': entry.label=d.label; break;
+    }
+    textMap[blk.id] = entry;
+  });
+
+  const prompt = `You are a professional Arabic translator and UI localization expert. Translate all English UI text strings into natural, fluent Arabic suitable for a professional app interface.
+
+Return ONLY a valid JSON object with NO extra text, markdown, or backticks. The structure must exactly mirror the input, with every string value translated to Arabic.
+
+Input JSON:
+${JSON.stringify(textMap, null, 2)}
+
+Rules:
+- Translate every string value to Arabic
+- Keep JSON keys identical
+- For arrays, translate each array element
+- Keep brand names (like "MyApp", "Lumina") as-is unless they have a meaning
+- Use formal Modern Standard Arabic (فصحى) appropriate for UI
+- Return ONLY the JSON object, nothing else`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const raw = data.content?.find(c=>c.type==='text')?.text || '';
+    // Strip any accidental fences
+    const clean = raw.replace(/```json|```/gi,'').trim();
+    const arMap = JSON.parse(clean);
+
+    // Build arBlocks from translation
+    sc.arBlocks = sc.blocks.map(blk => {
+      const ar = arMap[blk.id] || {};
+      const newData = JSON.parse(JSON.stringify(blk.data));
+      switch(blk.type) {
+        case 'nav':     newData.logo=ar.logo||newData.logo; newData.links=ar.links||newData.links; newData.btn=ar.btn||newData.btn; break;
+        case 'heading': newData.text=ar.text||newData.text; break;
+        case 'para':    newData.text=ar.text||newData.text; break;
+        case 'label':   newData.label=ar.label||newData.label; newData.placeholder=ar.placeholder||newData.placeholder; break;
+        case 'btnrow':  if(ar.buttons) newData.buttons=newData.buttons.map((b,i)=>({...b,text:ar.buttons[i]||b.text})); break;
+        case 'badge':   newData.items=ar.items||newData.items; break;
+        case 'list':    newData.items=ar.items||newData.items; break;
+        case 'image':   newData.caption=ar.caption||newData.caption; break;
+        case 'divider': newData.label=ar.label||newData.label; break;
+      }
+      return { ...blk, data: newData };
+    });
+
+    renderPreviews(sc);
+    renderScreenList(); // show ✓ AR badge
+    status.className = 'sb-t-status done';
+    status.textContent = '✓ Translated';
+    btn.textContent = '✦ Re-translate';
+  } catch(err) {
+    status.className = 'sb-t-status idle';
+    status.textContent = 'Error — retry';
+    btn.textContent = '✦ Translate Screen';
+    console.error(err);
+    alert('Translation failed. Make sure you are using this tool from claude.ai where the API is available.');
+  }
+  btn.disabled = false;
+}
+// ──────────────────────────────────────────
+function globalToggle() {
+  isArabic = !isArabic;
+  const dir = isArabic ? 'rtl' : 'ltr';
+  const lang = isArabic ? 'ar' : 'en';
+  document.getElementById('gtrack').classList.toggle('on', isArabic);
+  const enLbl = document.getElementById('lbl-en');
+  const arLbl = document.getElementById('lbl-ar');
+  enLbl.style.color = isArabic ? 'var(--text-muted)' : 'var(--gold-light)';
+  enLbl.style.fontWeight = isArabic ? '400' : '600';
+  arLbl.style.color = isArabic ? 'var(--gold-light)' : 'var(--text-muted)';
+  arLbl.style.fontWeight = isArabic ? '600' : '400';
+
+  // Flip all cards
+  ALL_CARDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('dir', dir);
+  });
+
+  // Translate all labelled elements
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = el.getAttribute('data-'+lang);
+  });
+
+  // Input placeholders
+  document.querySelectorAll('[data-en-ph]').forEach(el => {
+    el.placeholder = el.getAttribute('data-'+lang+'-ph');
+  });
+}
+
+// ── LIVE TRANSLATE DICTIONARY ──
+const dict = {
+  'hello':'مرحبا','submit':'إرسال','cancel':'إلغاء','save':'حفظ','search':'بحث',
+  'login':'تسجيل الدخول','logout':'تسجيل الخروج','home':'الرئيسية',
+  'settings':'الإعدادات','profile':'الملف الشخصي','dashboard':'لوحة التحكم',
+  'welcome':'مرحباً بك','loading':'جار التحميل','error':'خطأ','success':'نجاح',
+  'confirm':'تأكيد','delete':'حذف','edit':'تعديل','add':'إضافة','back':'رجوع',
+  'next':'التالي','name':'الاسم','email':'البريد الإلكتروني','password':'كلمة المرور',
+  'send':'إرسال','message':'رسالة','notifications':'الإشعارات','filter':'تصفية',
+  'export':'تصدير','import':'استيراد','help':'مساعدة','close':'إغلاق',
+  'open':'فتح','new':'جديد','view':'عرض','report':'تقرير','analytics':'التحليلات',
+  'account':'الحساب','total':'الإجمالي','status':'الحالة','active':'نشط',
+  'inactive':'غير نشط','checkout':'الدفع','cart':'السلة','review':'مراجعة',
+  'share':'مشاركة','download':'تحميل','upload':'رفع','projects':'المشاريع',
+  'team':'الفريق','tasks':'المهام','calendar':'التقويم','overview':'نظرة عامة',
+  'manage':'إدارة','contact':'تواصل','support':'الدعم','pricing':'الأسعار',
+  'about':'عن الشركة','explore':'استكشف','sign in':'تسجيل الدخول',
+  'sign up':'إنشاء حساب','get started':'ابدأ الآن','learn more':'اعرف أكثر',
+  'view profile':'عرض الملف الشخصي','send report':'إرسال التقرير',
+  'add to cart':'أضف إلى السلة','mark all read':'تعليم الكل كمقروء',
+  'create account':'إنشاء حساب','save changes':'حفظ التغييرات',
+};
+
+const EXAMPLES = ['Submit','Cancel','Save Changes','View Profile','Add to Cart','Dashboard','Notifications','Sign In','Learn More','Get Started'];
+
+function initLive() {
+  const wrap = document.getElementById('qpills');
+  EXAMPLES.forEach(ex => {
+    const p = document.createElement('span');
+    p.className = 'qpill';
+    p.textContent = ex;
+    p.onclick = () => { document.getElementById('live-in').value = ex; liveTranslate(); };
+    wrap.appendChild(p);
+  });
+}
+
+function liveTranslate() {
+  const val = document.getElementById('live-in').value.trim();
+  const out = document.getElementById('live-out');
+  const lcEn = document.getElementById('lc-en');
+  const lcAr = document.getElementById('lc-ar');
+
+  if (!val) {
+    out.textContent = 'ابدأ الكتابة…';
+    lcEn.textContent = 'Your text here';
+    lcAr.textContent = 'النص هنا';
+    return;
+  }
+
+  const lower = val.toLowerCase();
+  const translated = dict[lower] || val.split(' ').map(w => dict[w.toLowerCase()] || w).join(' ');
+
+  out.textContent = translated;
+  lcEn.textContent = val;
+  lcAr.textContent = translated;
+}
+
+// ── EXPORT ──
+const snippets = {
+  base: `/* ── Base RTL Setup ── */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Apply to your root HTML element: */
+/* <html lang="ar" dir="rtl"> */
+
+/* Body font swap */
+[dir="rtl"] body {
+  font-family: 'Noto Naskh Arabic',
+               'Amiri', 'Cairo', serif;
+}
+
+/* Remove letter-spacing (Arabic kerning is built-in) */
+[dir="rtl"] * {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}`,
+
+  flex: `/* ── Flexbox RTL Mirroring ── */
+
+/* Flip row direction */
+[dir="rtl"] .flex-row,
+[dir="rtl"] .row {
+  flex-direction: row-reverse;
+}
+
+/* Icon + text combos */
+[dir="rtl"] .icon-label .icon {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+/* Nav / button groups */
+[dir="rtl"] .btn-group {
+  flex-direction: row-reverse;
+}
+
+/* Progress bar fills from right */
+[dir="rtl"] .progress-fill {
+  margin-left: auto;
+  margin-right: 0;
+  background: linear-gradient(
+    270deg, /* flip gradient direction */
+    var(--primary),
+    var(--primary-light)
+  );
+}`,
+
+  typo: `/* ── Arabic Typography ── */
+
+/* Headlines */
+[dir="rtl"] h1, [dir="rtl"] h2,
+[dir="rtl"] h3, [dir="rtl"] h4 {
+  font-family: 'Noto Naskh Arabic', serif;
+  font-weight: 700;
+  line-height: 1.6; /* Arabic needs more line height */
+}
+
+/* Body & UI text */
+[dir="rtl"] p, [dir="rtl"] span,
+[dir="rtl"] label, [dir="rtl"] li {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 1.05em; /* Arabic reads slightly small */
+}
+
+/* Badges / tags: remove uppercase */
+[dir="rtl"] .badge, [dir="rtl"] .tag,
+[dir="rtl"] .label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: 'Noto Kufi Arabic', sans-serif;
+}`,
+
+  forms: `/* ── Form RTL Support ── */
+
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Noto Naskh Arabic', sans-serif;
+}
+
+/* Placeholder text */
+[dir="rtl"] input::placeholder,
+[dir="rtl"] textarea::placeholder {
+  text-align: right;
+}
+
+/* Leading icon inside input */
+[dir="rtl"] .input-wrapper .icon-leading {
+  left: auto;
+  right: 12px;
+}
+[dir="rtl"] .input-with-icon {
+  padding-right: 36px;
+  padding-left: 12px;
+}
+
+/* Form field labels */
+[dir="rtl"] .field > label {
+  display: block;
+  text-align: right;
+  margin-bottom: 4px;
+}`,
+
+  logical: `/* ── CSS Logical Properties ── */
+/* These auto-flip for RTL — use instead of left/right */
+
+.element {
+  /* Instead of: margin-left / margin-right */
+  margin-inline-start: 16px;  /* = left in LTR, right in RTL */
+  margin-inline-end: 8px;     /* = right in LTR, left in RTL */
+
+  /* Instead of: padding-left / padding-right */
+  padding-inline-start: 20px;
+  padding-inline-end: 12px;
+
+  /* Instead of: border-left */
+  border-inline-start: 3px solid var(--gold);
+
+  /* Instead of: left / right in position */
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+}
+
+/* Text alignment */
+.text-start { text-align: start; } /* left→LTR, right→RTL */
+.text-end   { text-align: end;   } /* right→LTR, left→RTL */`,
+};
+
+let currentTab = 'base';
+function renderCode() { document.getElementById('code-out').textContent = snippets[currentTab]; }
+function switchTab(t) {
+  currentTab = t;
+  document.querySelectorAll('.export-tab').forEach((el, i) => {
+    el.classList.toggle('active', ['base','flex','typo','forms','logical'][i] === t);
+  });
+  renderCode();
+  document.getElementById('copy-btn').textContent = 'Copy';
+  document.getElementById('copy-btn').classList.remove('copied');
+}
+function copyCode() {
+  navigator.clipboard.writeText(snippets[currentTab]).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── INIT ──
+initLive();
+renderCode();
+</script>
+</body>
+</html>
